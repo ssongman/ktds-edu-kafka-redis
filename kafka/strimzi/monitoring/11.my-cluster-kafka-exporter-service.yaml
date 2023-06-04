@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-cluster-kafka-exporter
+  namespace: kafka
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 9404
+  selector:    
+    app.kubernetes.io/instance: my-cluster
+    app.kubernetes.io/managed-by: strimzi-cluster-operator
+    app.kubernetes.io/name: kafka-exporter    
+  type: ClusterIP

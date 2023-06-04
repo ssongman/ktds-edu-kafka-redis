@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: p3x-redis-ui-settings
+data:
+  .p3xrs-conns.json: |
+    {
+      "list": [
+        {
+          "name": "cluster",
+          "host": "my-release-redis-master",
+          "port": 6379,
+          "password": "new1234",
+          "id": "unique"
+        }
+      ],
+      "license": ""
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p3x-redis-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: p3x-redis-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: p3x-redis-ui
+    spec:
+      containers:
+      - name: p3x-redis-ui
+        image: patrikx3/p3x-redis-ui
+        ports:
+        - name: p3x-redis-ui
+          containerPort: 7843
+        volumeMounts:
+        - name: p3x-redis-ui-settings
+          mountPath: /settings/.p3xrs-conns.json
+          subPath: .p3xrs-conns.json
+      volumes:
+      - name: p3x-redis-ui-settings
+        configMap:
+          name: p3x-redis-ui-settings
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: p3x-redis-ui-service
+  labels:
+    app.kubernetes.io/name: p3x-redis-ui-service
+spec:
+  ports:
+  - port: 7843
+    targetPort: p3x-redis-ui
+    name: p3x-redis-ui
+  selector:
+    app.kubernetes.io/name: p3x-redis-ui
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: p3x-redis-ui-ingress
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: traefik
+
+    # cert-manager support
+    # cert-manager.io/cluster-issuer: letsencrypt
+
+    # oauth2-proxy support
+    # nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    # nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+spec:
+  # tls:
+  # - hosts: [p3x-redis-ui.example.com]
+  #   secretName: p3x-redis-ui-tls
+  rules:
+  - host: p3xredisui.redis-system.ktcloud.211.254.212.105.nip.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: p3x-redis-ui-service
+            port:
+              number: 7843
+        path: /
+        pathType: Prefix

@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: p3x-redis-ui-settings
+data:
+  .p3xrs-conns.json: |
+    {
+      "list": [
+        {
+          "name": "cluster",
+          "host": "my-release-redis-master",
+          "port": 6379,
+          "password": "new1234",
+          "id": "unique"
+        }
+      ],
+      "license": ""
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p3x-redis-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: p3x-redis-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: p3x-redis-ui
+    spec:
+      containers:
+      - name: p3x-redis-ui
+        image: patrikx3/p3x-redis-ui
+        ports:
+        - name: p3x-redis-ui
+          containerPort: 7843
+        volumeMounts:
+        - name: p3x-redis-ui-settings
+          mountPath: /settings/.p3xrs-conns.json
+          subPath: .p3xrs-conns.json
+      volumes:
+      - name: p3x-redis-ui-settings
+        configMap:
+          name: p3x-redis-ui-settings
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: p3x-redis-ui-service
+  labels:
+    app.kubernetes.io/name: p3x-redis-ui-service
+spec:
+  ports:
+  - port: 7843
+    nodePort: 32220
+    targetPort: p3x-redis-ui
+    name: p3x-redis-ui
+  selector:
+    app.kubernetes.io/name: p3x-redis-ui
+  type: NodePort
+---

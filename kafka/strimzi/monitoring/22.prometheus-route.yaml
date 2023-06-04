@@ -1,0 +1,20 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: prometheus-route
+  namespace: kafka-system
+  labels:
+    app: prometheus
+    app.kubernetes.io/managed-by: Helm
+    chart: prometheus-15.8.4
+    component: server
+    heritage: Helm
+    release: prometheus
+spec:
+  host: prometheus-kafka.apps.211-34-231-82.nip.io
+  to:
+    kind: Service
+    name: prometheus-server
+    weight: 100
+  port:
+    targetPort: http
