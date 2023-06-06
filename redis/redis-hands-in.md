@@ -1530,6 +1530,16 @@ spring:
 - Spring Boot App 실행
 ```
 
+* health check
+
+
+```sh
+$ curl -X GET http://localhost:8082/health
+OK                                                                                                
+```
+
+
+
 
 
 ## 7.3 CRUD 테스트
@@ -1543,7 +1553,7 @@ p3x UI tool 로 모니터 하면서 아래 CRUD 테스트를진행해 보자.
 
 
 ```sh
-curl -X POST http://localhost:8082/person \
+$ curl -X POST http://localhost:8082/person \
   -H "Content-Type: application/json" \
   -d '{  
           "id": "aaaa",
@@ -1552,7 +1562,7 @@ curl -X POST http://localhost:8082/person \
           "createdAt": "2022-07-03T11:03:00"
         }'
 
-curl -X POST http://localhost:8082/person \
+$ curl -X POST http://localhost:8082/person \
   -H "Content-Type: application/json" \
   -d '{  
           "id": "bbbb",
@@ -1566,9 +1576,9 @@ curl -X POST http://localhost:8082/person \
 ### (2) get
 
 ```sh
-curl localhost:8082/person/aaaa
+$ curl localhost:8082/person/aaaa
 
-curl localhost:8082/person/bbbb
+$ curl localhost:8082/person/bbbb
 
 ```
 
@@ -1576,9 +1586,9 @@ curl localhost:8082/person/bbbb
 ### (3) delete
 
 ```sh
-curl -X DELETE localhost:8082/person/aaaa
+$ curl -X DELETE localhost:8082/person/aaaa
 
-curl -X DELETE localhost:8082/person/bbbb
+$ curl -X DELETE localhost:8082/person/bbbb
 
 ```
 
@@ -1596,7 +1606,7 @@ local PC 자원 절약을 위해서 사용하지 않을때는 반드시 Clean Up
 
 
 
-## 8.1 Strimzi All Clean Up
+## 8.1  All Clean Up
 
 ```sh
 # 1) redis 삭제
