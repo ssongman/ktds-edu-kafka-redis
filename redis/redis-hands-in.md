@@ -1556,19 +1556,19 @@ p3x UI tool 로 모니터 하면서 아래 CRUD 테스트를진행해 보자.
 $ curl -X POST http://localhost:8082/person \
   -H "Content-Type: application/json" \
   -d '{  
-          "id": "aaaa",
+          "id": "1001",
           "name": "Song",
           "age": 20,
-          "createdAt": "2022-07-03T11:03:00"
+          "createdAt": "2023-06-06T11:03:00"
         }'
 
 $ curl -X POST http://localhost:8082/person \
   -H "Content-Type: application/json" \
   -d '{  
-          "id": "bbbb",
+          "id": "1002",
           "name": "Park",
           "age": 20,
-          "createdAt": "2022-07-03T11:03:00"
+          "createdAt": "2023-06-06T11:03:00"
         }'
 
 ```
