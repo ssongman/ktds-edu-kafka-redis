@@ -1,0 +1,25 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: edu-user
+  labels:
+    strimzi.io/cluster: my-cluster
+  namespace: kafka
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      - operation:
+        - Describe
+        - Read
+        resource:
+          type: topic
+          name: edu
+          patternType: prefix
+      - operation: All
+        resource:
+          name: edu
+          patternType: prefix
+          type: group

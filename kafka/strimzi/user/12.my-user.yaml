@@ -11,7 +11,9 @@ spec:
   authorization:
     type: simple
     acls:
-      - operation: All
+      - operation:
+        - Describe
+        - Read
         resource:
           type: topic
           name: my
@@ -19,15 +21,5 @@ spec:
       - operation: All
         resource:
           name: my
-          patternType: prefix
-          type: group
-      - operation: All
-        resource:
-          type: topic
-          name: edu
-          patternType: prefix
-      - operation: All
-        resource:
-          name: edu
           patternType: prefix
           type: group
