@@ -11,9 +11,9 @@ spec:
   authorization:
     type: simple
     acls:
-      - operation
-        - Describe
-        - Read
+      - operation:
+          - Describe
+          - Read
         resource:
           type: topic
           name: my
