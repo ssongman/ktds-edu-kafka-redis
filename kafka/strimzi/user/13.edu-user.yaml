@@ -11,7 +11,7 @@ spec:
   authorization:
     type: simple
     acls:
-      - operation:
+      - operation
         - Describe
         - Read
         resource:
