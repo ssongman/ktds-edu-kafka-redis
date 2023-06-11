@@ -11,7 +11,7 @@ public class consumer {
     @Value("${topic.name}")
     private String topicName;
 	
-	@KafkaListener(topics="${topic.name}", groupId="my-topic-group")
+	@KafkaListener(topics="${topic.name}")
 	public void consuemrRecord(ConsumerRecord<String, String> payload) {	
 		System.out.println("");
 		System.out.println("Consume Message-----------------------");
