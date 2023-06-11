@@ -78,15 +78,19 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 
 
 
-## 1.6 STS 설치
+## 1.4 STS 설치
 
-### (1) 설치
+### (1) STS 설치
 
-- STS설치
-  - 링크 : https://download.springsource.com/release/STS4/4.15.1.RELEASE/dist/e4.24/spring-tool-suite-4-4.15.1.RELEASE-e4.24.0-win32.win32.x86_64.self-extracting.jar
+- 링크 : https://download.springsource.com/release/STS4/4.18.1.RELEASE/dist/e4.27/spring-tool-suite-4-4.18.1.RELEASE-e4.27.0-win32.win32.x86_64.self-extracting.jar
+- 설치
+- Workspace 설정
+  - 위치 : C:\workspace_STS4.18.1
 
 
 
+
+### (2) [참고] java 설치
 
 - java 설치가 필요한 경우 아래 링크 참고
   - 링크: https://javadl.oracle.com/webapps/download/AutoDL?BundleId=246442_2dee051a5d0647d5be72a7c0abff270e
@@ -160,7 +164,7 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 
 
 
-## 1) 수강생별 접속 서버 주소
+## 3.1 수강생별 접속 서버 주소
 
 개인별 VM Server 접속 환경 및 Kafka 실습을 위한 개인 Topic 정보를 확인하자.
 
@@ -191,7 +195,7 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 
 
 
-## 2) ssh (Mobaxterm) 실행
+## 3.2 ssh (Mobaxterm) 실행
 
 Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 sesion 을 생성하자.
 
@@ -226,7 +230,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 sesion 을 생성하
 
 
 
-## 4) 실습자료 download
+## 3.3 실습자료 download
 
 접속 완료 하였다면 테스트를 위해서 git clone 명령으로 실습 자료를 받아 놓자.
 
@@ -237,69 +241,34 @@ $ mkdir -p ~/githubrepo
 
 $ cd ~/githubrepo
 
-$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
-Cloning into 'ktds-edu-k8s-istio'...
-remote: Enumerating objects: 69, done.
-remote: Counting objects: 100% (69/69), done.
-remote: Compressing objects: 100% (55/55), done.
-remote: Total 69 (delta 15), reused 62 (delta 11), pack-reused 0
-Unpacking objects: 100% (69/69), 1.63 MiB | 4.09 MiB/s, done.
+$ git clone https://github.com/ssongman/ktds-edu-kafka-redis.git
+Cloning into 'ktds-edu-kafka-redis'...
+remote: Enumerating objects: 320, done.
+remote: Counting objects: 100% (320/320), done.
+remote: Compressing objects: 100% (220/220), done.
+remote: Total 320 (delta 95), reused 277 (delta 56), pack-reused 0
+Receiving objects: 100% (320/320), 8.40 MiB | 24.22 MiB/s, done.
+Resolving deltas: 100% (95/95), done.
 
-$ ll ~/users/yjsong/githubrepo
-drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
+# 확인
+$ cd  ~/githubrepo/ktds-edu-kafka-redis
+
+$ ll ~/githubrepo/ktds-edu-kafka-redis
+total 44
+drwxrwxr-x 8 ktdseduuser ktdseduuser 4096 Jun 11 05:53 ./
+drwxrwxr-x 3 ktdseduuser ktdseduuser 4096 Jun 11 05:53 ../
+drwxrwxr-x 8 ktdseduuser ktdseduuser 4096 Jun 11 05:53 .git/
+-rw-rw-r-- 1 ktdseduuser ktdseduuser  382 Jun 11 05:53 .gitignore
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 4077 Jun 11 05:53 README.md
+-rw-rw-r-- 1 ktdseduuser ktdseduuser  461 Jun 11 05:53 SUMMARY.md
+drwxrwxr-x 3 ktdseduuser ktdseduuser 4096 Jun 11 05:53 beforebegin/
+drwxrwxr-x 2 ktdseduuser ktdseduuser 4096 Jun 11 05:53 gcp-vm-key/
+drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 Jun 11 05:53 kafka/
+drwxrwxr-x 3 ktdseduuser ktdseduuser 4096 Jun 11 05:53 ktcloud-setup/
+drwxrwxr-x 6 ktdseduuser ktdseduuser 4096 Jun 11 05:53 redis/
+
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 3. 실습자료
-
-실습시 필요한 다양한 yaml 파일들을 미리 download받아 놓자.
-
-
-
-
-## 3.1 실습자료 Download
-
-kubernetes 접근이 가능한 terminal(mobaxterm 등) 에서 아래와 같이  실습파일을 download 하자.
-
-```sh
-$ mkdir ~/githubrepo/
-
-$ cd ~/githubrepo/
-
-$ git clone https://github.com/ssongman/ktds-edu2
-Cloning into 'ktds-edu2'...
-remote: Enumerating objects: 435, done.
-remote: Counting objects: 100% (435/435), done.
-remote: Compressing objects: 100% (313/313), done.
-remote: Total 435 (delta 126), reused 408 (delta 99), pack-reused 0
-Receiving objects: 100% (435/435), 13.15 MiB | 6.58 MiB/s, done.
-Resolving deltas: 100% (126/126), done.
-
-$ cd ~/githubrepo/ktds-edu2
-
-$ ll
-drwxr-xr-x 8 song song 4096 Jul  2 17:02 .git/
--rw-r--r-- 1 song song 2595 Jul  2 17:02 README.md
-drwxr-xr-x 3 song song 4096 Jul  2 17:02 beforebegin/
-drwxr-xr-x 5 song song 4096 Jul  2 17:02 kafka/
-drwxr-xr-x 3 song song 4096 Jul  2 17:02 ktcloud-setup/
-drwxr-xr-x 4 song song 4096 Jul  2 17:02 redis/
-```
-
-
 
 
 

@@ -14,11 +14,10 @@
 
 ### 1) 실습 환경 준비(개인PC)
 
-* WSL2 설치
-* Docker Desktop 설치
 * MobaxTerm 설치
 * Typora 설치
 * 교육자료 Download
+* 실흡환경준비
 
 
 
