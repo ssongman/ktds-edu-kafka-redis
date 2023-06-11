@@ -107,46 +107,7 @@ root 권한자가 아닌 다른 사용자도 사용하려면 위와 동일하게
 
 
 
-
-
-## 3) K9S Setup
-
-kubernetes Cluster를 관리하기 위한 kubernetes cli tool 을 설치해 보자.
-
-```sh
-# root 권한으로
-
-$ mkdir ~/song/k9s
-$ cd  ~/song/k9s
-
-$ wget https://github.com/derailed/k9s/releases/download/v0.27.4/k9s_Linux_amd64.tar.gz
-$ tar -xzvf k9s_Linux_amd64.tar.gz
-
-$ ll
--rw-r--r-- 1  501 staff    10174 Mar 22  2021 LICENSE
--rw-r--r-- 1  501 staff    35702 May  7 16:54 README.md
--rwxr-xr-x 1  501 staff 60559360 May  7 17:01 k9s*
--rw-r--r-- 1 root root  18660178 May  7 17:03 k9s_Linux_amd64.tar.gz
-
-$ cp ./k9s /usr/local/bin/
-
-$ ll /usr/local/bin/
--rwxr-xr-x  1 root root 60559360 May 15 13:05 k9s*
-
-
-# 일반 사용자로 전환
-$ exit 
-
-# 실행
-$ k9s
-
-```
-
-
-
-
-
-## 4) helm install
+## 3) Helm Install
 
 ### (1) helm client download
 
@@ -253,7 +214,7 @@ No resources found in yjsong namespace.
 
 
 
-## 5) alias 정의
+## 4) alias 정의
 
 ```sh
 # user 권한으로
@@ -280,6 +241,43 @@ source ~/env
 ```
 
 
+
+
+
+
+
+## 5) K9S Setup
+
+kubernetes Cluster를 관리하기 위한 kubernetes cli tool 을 설치해 보자.
+
+```sh
+# root 권한으로
+
+$ mkdir ~/temp/k9s
+  cd  ~/temp/k9s
+
+$ wget https://github.com/derailed/k9s/releases/download/v0.27.4/k9s_Linux_amd64.tar.gz
+$ tar -xzvf k9s_Linux_amd64.tar.gz
+
+$ ll
+-rw-r--r-- 1  501 staff    10174 Mar 22  2021 LICENSE
+-rw-r--r-- 1  501 staff    35702 May  7 16:54 README.md
+-rwxr-xr-x 1  501 staff 60559360 May  7 17:01 k9s*
+-rw-r--r-- 1 root root  18660178 May  7 17:03 k9s_Linux_amd64.tar.gz
+
+$ cp ./k9s /usr/local/bin/
+
+$ ll /usr/local/bin/
+-rwxr-xr-x  1 root root 60559360 May 15 13:05 k9s*
+
+
+# 일반 사용자로 전환
+$ exit 
+
+# 실행
+$ k9s
+
+```
 
 
 
@@ -3352,167 +3350,6 @@ redisinsight    redis-system    1               2023-06-06 02:54:17.804212167 +0
 # 삭제시
 $ helm -n redis-system delete redisinsight
 
-
-```
-
-
-
-
-
-
-
-# 5. ACL
-
-Redis 6.0 이상부터는 계정별 access 수준을 정의할 수 있다.  
-
-이러한 ACL 기능을 이용해서 아래와 같은 계정을 관리 할 수 있다.
-
-- 읽기전용 계정생성도 가능
-
-- 특정 프리픽스로 시작하는 Key 만 access 가능하도록 하는 계정 생성
-
-
-
-## 1) ACL 기본명령
-
-
-
-```sh
-# redis-client pod 내에서 수행
-$ krs exec -it deploy/redis-client -- bash
-
-$ redis-cli -h my-release-redis-master -a new1234
-
-
-# 계정 목록
-my-release-redis-master:6379> acl list
-1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-
-
-
-# 계정 추가
-my-release-redis-master:6379> acl setuser supersong on >new1234 allcommands allkeys
-OK
-
-my-release-redis-master:6379> acl setuser tempsong on >new1234 allcommands allkeys
-OK
-
-
-
-my-release-redis-master:6379> acl list
-1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-2) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
-3) "user tempsong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
-
-
-# 계정 전환
-my-release-redis-master:6379> acl whoami
-"default"
-my-release-redis-master:6379> auth supersong new1234
-OK
-my-release-redis-master:6379> acl whoami
-"supersong"
-my-release-redis-master:6379>  auth default new1234
-OK
-
-
-# 계정 삭제
-my-release-redis-master:6379> acl deluser tempsong
-(integer) 1
-my-release-redis-master:6379>  acl list
-1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-2) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
-
-
-```
-
-
-
-
-
-## 2) 읽기전용 계정 생성
-
-- 읽기전용 계정 테스트
-
-```sh
-# 계정생성
-my-release-redis-master:6379> acl setuser readonlysong on >new1234 allcommands allkeys -set +get
-OK
-my-release-redis-master:6379> acl list
-1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all -set"
-3) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
-
-# 계정 전환
-my-release-redis-master:6379> auth readonlysong new1234
-OK
-my-release-redis-master:6379> acl whoami
-"readonlysong"
-
-
-# 읽기는 가능
-my-release-redis-master:6379> get a
-"1"
-
-# 쓰기는 불가능
-my-release-redis-master:6379> set a 1
-(error) NOPERM this user has no permissions to run the 'set' command
-
-```
-
-
-
-
-
-## 3) 특정 key만 접근 허용
-
-- song으로 로그인 하면 song으로 시작하는 key 만 get/set 가능하도록 설정
-
-```sh
-# song 으로 시작하는 key 만 접근가능하도록 설정
-
-
-211.254.212.105:32200> acl setuser song on >new1234 allcommands allkeys
-OK
-211.254.212.105:32200> acl list
-1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all -set"
-3) "user song on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-4) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-
-
-211.254.212.105:32200> acl setuser song resetkeys ~song*
-OK
-
-
-211.254.212.105:32200> acl list
-1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all -set"
-3) "user song on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~song* &* +@all"
-4) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
-
-
-211.254.212.105:32200> auth song new1234
-OK
-
-211.254.212.105:32200> acl whoami
-"song"
-
-
-# set 명령 테스트
-211.254.212.105:32200> set a 1
-(error) NOPERM this user has no permissions to access one of the keys used as arguments
-
-211.254.212.105:32200> set song_a 1
-OK
-
-# get 명령 테스트
-211.254.212.105:32200> get a
-(error) NOPERM this user has no permissions to access one of the keys used as arguments
-
-
-211.254.212.105:32200> get song_a
-"1"
 
 ```
 

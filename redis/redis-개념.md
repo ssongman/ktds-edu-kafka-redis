@@ -50,7 +50,7 @@
 
 ### (1) Redis Cluster
 
-- [Redis 클러스터](https://redis.io/topics/cluster-tutorial) 는 **DB를 분할하여 데이터베이스를 확장**하여 복원력을 향상시키도록 설계된 **Redis Instance 들의 집합임**
+- [Redis 클러스터](https://redis.io/topics/cluster-tutorial) 는 **DB를 분할/확장**하여 복원력을 향상시키도록 설계된 **Redis Instance 들의 집합임**
 
 - **만약 Master에 연결할 수 없으면 해당 Slave가 Master로 승격됨** 
 - 3개의 Master노드로 구성된 최소 Redis 클러스터에서 각 Master 노드에는 단일 Slave 노드가 있습니다(최소 장애 조치 허용)
@@ -85,7 +85,7 @@
 
 
 
-# 2. Caching 
+# 2. Caching
 
 Redis 를 사용하는 가장 큰 목적은 Caching이다.  Caching 이 무엇이고 주의사항등에 대해 알아보자.
 
@@ -156,10 +156,9 @@ Redis 를 사용하는 가장 큰 목적은 Caching이다.  Caching 이 무엇�
 
 ### (2) Local Caching
 
-- Local Cache는 로컬 서버 내부 저장소에 데이터를 보관
-- 서버에서 바로 데이터를 서비스할 수 있기 때문에 속도가  빠르다는 장점이 있음
+- Local Cache는 Loca 서버 내부 저장소에 데이터를 보관 하므로 속도가  빠르다는 장점이 있음
 - 하지만 다중 서버 환경에서는 각 서버에 중복된 데이터를 보관해야 하며 서버간 데이터 일관성이 깨질 수 있음
-- 캐싱할 데이터의 양이 많을 경우 로컬서버의 메모리를 사용량이 많아져 결국 로컬서버의 부하를 초래할수 있어 신중하게 사용해야 함
+- 캐싱할 데이터의 양이 많을 경우 로컬서버의 메모리 사용량이 많아져 결국 로컬서버의 부하를 초래할수 있어 신중하게 사용해야 함
 
 
 

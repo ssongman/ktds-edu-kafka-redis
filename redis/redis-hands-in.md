@@ -19,8 +19,6 @@ Bastion Server 에서 redis 를 설치해 보자.
 ```sh
 $ kubectl create ns redis-system
 
-$ alias krs='kubectl -n redis-system'
-
 ```
 
 
@@ -848,8 +846,6 @@ my-release-redis-master     NodePort    10.43.160.148   <none>        6379:32300
 
 
 
-
-
 #### Node IP 확인
 
 - node port 를 인식할 수 있는 본인 Bastion Server IP를 확인해야 한다.
@@ -861,11 +857,11 @@ my-release-redis-master     NodePort    10.43.160.148   <none>        6379:32300
 ```
 Ctrl + H
 
-35.xx.xx.xx --> 35.247.230.92 (자신의 Bastion Server IP)   모두 변경
+35.xx.xx.xx --> 34.95.147.185 (자신의 Bastion Server IP)   모두 변경
 ```
 
 - 접근 주소
-  - 35.247.230.92:32300
+  - 35.xx.xx.xx:32300
   - 위 주소로 본인의 local PC 에서도 위 Redis 주소로 접근할 수 있다.
 
   
@@ -884,7 +880,7 @@ $ podman run --name redis-client -d --user root docker.io/bitnami/redis-cluster:
 $ podman exec -it redis-client bash
 
 ## Local PC IP로 cluster mode 접근
-$ redis-cli -h 35.247.230.92 -c -a new1234 -p 32300
+$ redis-cli -h 35.xx.xx.xx -c -a new1234 -p 32300
 
 ```
 
@@ -896,22 +892,22 @@ $ redis-cli -h 35.247.230.92 -c -a new1234 -p 32300
 
 # get 명령 수행
 # Internal Access 에서 테스트 했던 4개 값을 읽어오자.
-35.247.230.92:32300> get a
+35.xx.xx.xx:32300> get a
 "1"
-35.247.230.92:32300> get b
+35.xx.xx.xx:32300> get b
 "2"
-35.247.230.92:32300> get c
+35.xx.xx.xx:32300> get c
 "3"
-35.247.230.92:32300> get d
+35.xx.xx.xx:32300> get d
 "4"
 
 
 # set 명령 수행
-35.247.230.92:32300> set e 1
+35.xx.xx.xx:32300> set e 1
 OK
-35.247.230.92:32300> set f 2
+35.xx.xx.xx:32300> set f 2
 OK
-35.247.230.92:32300> set g 3
+35.xx.xx.xx:32300> set g 3
 OK
 
 
@@ -958,8 +954,8 @@ root@453e3debccb3:/#
 
 
 ## Local PC IP로 cluster mode 접근
-$ redis-cli -h 35.247.230.92 -c -a new1234 -p 32300
-35.247.230.92:32300>
+$ redis-cli -h 35.xx.xx.xx -c -a new1234 -p 32300
+35.xx.xx.xx:32300>
 
 ```
 
@@ -972,18 +968,18 @@ $ redis-cli -h 35.247.230.92 -c -a new1234 -p 32300
 ```sh
 
 # 1) 계정 목록
-35.247.230.92:32300> acl list
+35.xx.xx.xx:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 
 ## 기본적으로 default 라는 계정이 존재한다.
 
 
 # 2) 계정 추가
-35.247.230.92:32300> acl setuser supersong on >new1234 allcommands allkeys
+35.xx.xx.xx:32300> acl setuser supersong on >new1234 allcommands allkeys
 OK
-35.247.230.92:32300> acl setuser tempsong on >new1234 allcommands allkeys
+35.xx.xx.xx:32300> acl setuser tempsong on >new1234 allcommands allkeys
 OK
-35.247.230.92:32300>  acl list
+35.xx.xx.xx:32300>  acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
 3) "user tempsong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
@@ -991,23 +987,23 @@ OK
 
 
 # 3) 계정 전환
-35.247.230.92:32300> acl whoami
+35.xx.xx.xx:32300> acl whoami
 "default"
-35.247.230.92:32300> auth supersong new1234
+35.xx.xx.xx:32300> auth supersong new1234
 OK
-35.247.230.92:32300> acl whoami
+35.xx.xx.xx:32300> acl whoami
 "supersong"
-35.247.230.92:32300> auth default new1234
+35.xx.xx.xx:32300> auth default new1234
 OK
-35.247.230.92:32300> acl whoami
+35.xx.xx.xx:32300> acl whoami
 "default"
 
 
 
 # 4) 계정 삭제
-35.247.230.92:32300> acl deluser tempsong
+35.xx.xx.xx:32300> acl deluser tempsong
 (integer) 1
-35.247.230.92:32300> acl list
+35.xx.xx.xx:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
 
@@ -1024,9 +1020,9 @@ OK
 ```sh
 
 # 1) 읽기 계정 생성
-35.247.230.92:32300> acl setuser readonlysong on >new1234 allcommands allkeys -set +get
+35.xx.xx.xx:32300> acl setuser readonlysong on >new1234 allcommands allkeys -set +get
 OK
-35.247.230.92:32300> acl list
+35.xx.xx.xx:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all -set"
 3) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
@@ -1035,29 +1031,29 @@ OK
 
 
 # 2) 계정 전환
-35.247.230.92:32300> acl whoami
+35.xx.xx.xx:32300> acl whoami
 "default"
-35.247.230.92:32300> auth readonlysong new1234
+35.xx.xx.xx:32300> auth readonlysong new1234
 OK
 
-35.247.230.92:32300> acl whoami
+35.xx.xx.xx:32300> acl whoami
 "readonlysong"
 
 
 
 # 3) 읽기 / 쓰기 확인
-35.247.230.92:32300> get a
+35.xx.xx.xx:32300> get a
 "1"
 
-35.247.230.92:32300> set a 1
+35.xx.xx.xx:32300> set a 1
 (error) NOPERM this user has no permissions to run the 'set' command
 
 
 
 # 4) 계정 전환
-35.247.230.92:32300> auth default new1234
+35.xx.xx.xx:32300> auth default new1234
 OK
-35.247.230.92:32300> acl whoami
+35.xx.xx.xx:32300> acl whoami
 "default"
 
 
@@ -1075,10 +1071,10 @@ OK
 
 # 1) song 으로 시작하는 key 만 접근가능한 User 새성
 ## 1-1) song 계정 생성
-35.247.230.92:32300> acl setuser song on >new1234 allcommands allkeys
+35.xx.xx.xx:32300> acl setuser song on >new1234 allcommands allkeys
 OK
 
-35.247.230.92:32300> acl list
+35.xx.xx.xx:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all -set"
 3) "user song on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
@@ -1087,10 +1083,10 @@ OK
 
 
 ## 1-2) song 으로 시작하는 key 만 접근가능도록 설정
-35.247.230.92:32300> acl setuser song resetkeys ~song*
+35.xx.xx.xx:32300> acl setuser song resetkeys ~song*
 OK
 
-35.247.230.92:32300> acl list
+35.xx.xx.xx:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all -set"
 3) "user song on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~song* resetchannels +@all"
@@ -1099,27 +1095,27 @@ OK
 
 
 # 2) 계정전환
-35.247.230.92:32300> auth song new1234
+35.xx.xx.xx:32300> auth song new1234
 OK
 
-35.247.230.92:32300> acl whoami
+35.xx.xx.xx:32300> acl whoami
 "song"
 
 
 
 # 3) set 명령 테스트
-35.247.230.92:32300> set a 1
+35.xx.xx.xx:32300> set a 1
 (error) NOPERM this user has no permissions to access one of the keys used as arguments
 
-35.247.230.92:32300> set song_a 1
+35.xx.xx.xx:32300> set song_a 1
 OK
 
 
 # 4) get 명령 테스트
-35.247.230.92:32300> get a
+35.xx.xx.xx:32300> get a
 (error) NOPERM this user has no permissions to access one of the keys used as arguments
 
-35.247.230.92:32300> get song_a
+35.xx.xx.xx:32300> get song_a
 "1"
 
 
@@ -1146,7 +1142,7 @@ $ helm -n redis-system ls
 
 
 # 2) redis-client 삭제
-$ kubectl -n redis-system delete deployment.apps/redis-
+$ kubectl -n redis-system delete deploy/redis-client
 # 확인
 $ kubectl -n redis-system get all
 

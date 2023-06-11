@@ -1,10 +1,12 @@
 # README
 
+
+
 ## Kakfa / Redis on Kubernetes
 
 > Container 기반 Kafka, Redis 교육자료 !!
 
-본 교육은 Container를 기반으로 한 Kafka, Redis 를 학습하는 과정으로 kubernetes 환경에서 kafka/Redis install수행하는 방법과 각각 모니터 솔루션을 설치하는 방법을 알아보며 Spring Boot / Python 으로 실습한다.
+본 교육은 Container를 기반으로 한 Kafka, Redis 를 학습하는 과정으로 kubernetes 환경에서 kafka/Redis install수행하는 방법과 각각 모니터링 솔루션을 확인하는 방법을 알아보며 Spring Boot / Python 으로 실습한다.
 
 문의: 송양종( yj.song@kt.com / ssongmantop@gmail.com )
 
@@ -12,12 +14,12 @@
 
 ## 1. 시작전에 ( [가이드 문서 보기](beforebegin/beforebegin.md) )
 
-### 1) 실습 환경 준비(개인PC)
+### 1) 실습 환경 준비
 
 * MobaxTerm 설치
 * Typora 설치
 * 교육자료 Download
-* 실흡환경준비
+* 실흡환경준비(Cloiud)
 
 
 
@@ -158,23 +160,21 @@
 
 ## 별첨. Cloud Setup ( [가이드 문서 보기](cloud-setup/cloud-setup.md) )
 
-### 1) 서버 생성
+### 1) Bastion Server Setup
 
-* k3s Cluster 용도 VM 생성
-* k3s 설치
+* k3s 구성
+* Helm Install
+* 기타 Tool Setup
 
-### 2) Strimzi on KTCloud
+### 2) Kafka Setup(Strimzi) on Cloud
 
 * Strimzi Cluster Operator Install
 * Kafka Cluster 생성
 * KafkaUser / KafkaTopic 생성
-* Accessing Kafka / Internal Access / External Access(Node Port)
-* Monitoring 환경구축 (Kafka Exporter / Prometheus / Grafana )
+* Monitoring 환경구축 (Kafka Exporter / Prometheus / Grafana / Kafdrop )
 
-### 3) Redis on KT Cloud
+### 3) Redis on Cloud
 
-* helm install
-* Redis Cluster / Redis Install
+* Redis Cluster Install
 * P3X Redis UI
-* ACL
-* Java Sample
+* Web UI (P3X / RedisInsight)

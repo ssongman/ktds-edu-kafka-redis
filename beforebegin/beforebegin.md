@@ -4,7 +4,7 @@
 
 
 
-# 1. 실습 환경 준비
+# 1. 실습 환경 준비(개인PC)
 
 우리는 Kubernetes 기반에 Kafka / Redis 설치하는 실습을 진행할 것이다.
 
@@ -168,28 +168,28 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 
 개인별 VM Server 접속 환경 및 Kafka 실습을 위한 개인 Topic 정보를 확인하자.
 
-| 담당자 | VM Server | VM  Server IP | kafka  Topic | kafka Group | 비고 |
-| :----: | :-------: | :-----------: | :----------: | :---------: | :--: |
-| 송양종 | bastion01 | 34.27.41.215  | edu-topic01  | edu-group01 |      |
-| 송양종 | bastion02 |               | edu-topic02  | edu-group02 |      |
-| 김상훈 | bastion03 | 35.247.230.92 | edu-topic03  | edu-group03 |      |
-| 강현종 | bastion04 |               | edu-topic04  | edu-group04 |      |
-| 김석천 | bastion05 |               | edu-topic05  | edu-group05 |      |
-| 김용건 | bastion06 |               | edu-topic06  | edu-group06 |      |
-| 석미화 | bastion07 |               | edu-topic07  | edu-group07 |      |
-| 안성호 | bastion08 |               | edu-topic08  | edu-group08 |      |
-| 양행모 | bastion09 |               | edu-topic09  | edu-group09 |      |
-| 윤준구 | bastion10 |               | edu-topic10  | edu-group10 |      |
-| 윤하림 | bastion11 |               | edu-topic11  | edu-group11 |      |
-| 이동현 | bastion12 |               | edu-topic12  | edu-group12 |      |
-| 이영호 | bastion13 |               | edu-topic13  | edu-group13 |      |
-| 임성식 | bastion14 |               | edu-topic14  | edu-group14 |      |
-| 조은하 | bastion15 |               | edu-topic15  | edu-group15 |      |
-| 최소현 | bastion16 |               | edu-topic16  | edu-group16 |      |
-|        | bastion17 |               | edu-topic17  | edu-group17 |      |
-|        | bastion18 |               | edu-topic18  | edu-group18 |      |
-|        | bastion19 |               | edu-topic19  | edu-group19 |      |
-|        | bastion20 |               | edu-topic20  | edu-group20 |      |
+| 담당자 | VM Server | VM  Server IP  | kafka  Topic | kafka Group | 비고 |
+| :----: | :-------: | :------------: | :----------: | :---------: | :--: |
+| 송양종 | bastion01 |  34.27.41.215  | edu-topic01  | edu-group01 |      |
+| 송양종 | bastion02 | 34.95.147.185  | edu-topic02  | edu-group02 |      |
+| 김상훈 | bastion03 | 35.247.230.92  | edu-topic03  | edu-group03 |      |
+| 강현종 | bastion04 | 34.95.214.135  | edu-topic04  | edu-group04 |      |
+| 김석천 | bastion05 | 34.95.196.156  | edu-topic05  | edu-group05 |      |
+| 김용건 | bastion06 |  34.95.252.6   | edu-topic06  | edu-group06 |      |
+| 석미화 | bastion07 |  34.130.23.31  | edu-topic07  | edu-group07 |      |
+| 안성호 | bastion08 | 34.130.229.93  | edu-topic08  | edu-group08 |      |
+| 양행모 | bastion09 | 34.118.130.16  | edu-topic09  | edu-group09 |      |
+| 윤준구 | bastion10 | 34.118.132.174 | edu-topic10  | edu-group10 |      |
+| 윤하림 | bastion11 | 34.152.24.188  | edu-topic11  | edu-group11 |      |
+| 이동현 | bastion12 |  34.95.17.157  | edu-topic12  | edu-group12 |      |
+| 이영호 | bastion13 | 34.152.19.216  | edu-topic13  | edu-group13 |      |
+| 임성식 | bastion14 | 35.185.244.221 | edu-topic14  | edu-group14 |      |
+| 조은하 | bastion15 | 34.83.150.237  | edu-topic15  | edu-group15 |      |
+| 최소현 | bastion16 | 34.168.237.140 | edu-topic16  | edu-group16 |      |
+|        | bastion17 | 35.227.175.75  | edu-topic17  | edu-group17 |      |
+|        |           |                | edu-topic18  | edu-group18 |      |
+|        |           |                | edu-topic19  | edu-group19 |      |
+|        |           |                | edu-topic20  | edu-group20 |      |
 
 
 
@@ -204,6 +204,12 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 sesion 을 생성하
 
   - SSH : 팝업창 상단 아이콘 클릭
 
+![image-20230514022214007](assets/image-20230514022214007.png)
+
+빨간색 영역을 주의해서 입력한 후 접속하자.
+
+
+
 - Romote host
   - 개인별로 접근 주소가 다르므로 위 수강생별  VM  Server IP 주소를 확인하자.
   - ex)  bastion03 : 35.247.230.92
@@ -216,14 +222,6 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 sesion 을 생성하
 - Advanced SSH settings
   - Use private key : C:\githubrepo\ktds-edu-kafka-redis\gcp-vm-key\ktdseduuser
     - 교육자료 Download 되는 자료에 위 key가 포함되어 있음
-
-
-
-
-
-![image-20230514022214007](assets/image-20230514022214007.png)
-
-빨간색 영역을 주의해서 입력한 후 접속하자.
 
 
 
@@ -249,6 +247,11 @@ remote: Compressing objects: 100% (220/220), done.
 remote: Total 320 (delta 95), reused 277 (delta 56), pack-reused 0
 Receiving objects: 100% (320/320), 8.40 MiB | 24.22 MiB/s, done.
 Resolving deltas: 100% (95/95), done.
+
+
+## 만약 ktds-edu-kafka-redis 존재한다면 최신 데이터를 한번 더 받는다.
+$ cd ~/githubrepo
+$ git pull
 
 
 # 확인
