@@ -156,7 +156,7 @@
 
 
 
-## 별첨. KT Cloud Setup ( [가이드 문서 보기](ktcloud-setup/ktcloud-setup.md) )
+## 별첨. Cloud Setup ( [가이드 문서 보기](cloud-setup/cloud-setup.md) )
 
 ### 1) 서버 생성
 

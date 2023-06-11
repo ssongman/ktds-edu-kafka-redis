@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 
-@RedisHash(value = "people", timeToLive = 3600)
+@RedisHash(value = "people__", timeToLive = 3600)   // 수강생 각자의 번호를 포함하자.
 public class Person {
     @Id
     private String id;
