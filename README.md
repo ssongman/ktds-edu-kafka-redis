@@ -2,11 +2,13 @@
 
 ## Kakfa / Redis on Kubernetes
 
-> ktds Container 기반 Kafka, Redis 교육자료 !!
+> Container 기반 Kafka, Redis 교육자료 !!
 
 본 교육은 Container를 기반으로 한 Kafka, Redis 를 학습하는 과정으로 kubernetes 환경에서 kafka/Redis install수행하는 방법과 각각 모니터 솔루션을 설치하는 방법을 알아보며 Spring Boot / Python 으로 실습한다.
 
 문의: 송양종( yj.song@kt.com / ssongmantop@gmail.com )
+
+
 
 ## 1. 시작전에 ( [가이드 문서 보기](beforebegin/beforebegin.md) )
 
@@ -17,6 +19,8 @@
 * MobaxTerm 설치
 * Typora 설치
 * 교육자료 Download
+
+
 
 ## 2. Kafka 개념 ( [가이드 문서 보기](kafka/1.kafka-개념.md) )
 
@@ -34,7 +38,7 @@
 * Offset 관리
   * Conumer Group 단위로 Offset 을 관리
 * Producer/Consumer Partitioning
-  * Partion 별로 메세지를 수신/ 발신 한느 방법에 대한 개념 확인
+  * Partion 별로 메세지 수신/ 발신 방법에 대한 개념 확인
 
 ### 3) Kafka Replication
 
@@ -44,6 +48,8 @@
   * ISR은 **현재 동기화 상태에 있는** **리플리케이션**
 * Producer Ack
   * Replication 구조에서 Producer 메시지 송신 타이밍을 결정하는 Ack 설정
+
+
 
 ## 3. Kafka Hands-in ( [가이드 문서 보기](kafka/2.kafka-hands-in.md) )
 
@@ -88,6 +94,8 @@
 * Rebalancing 시나리오
 * 시나리오 테스트 수행
 
+
+
 ## 4. Redis 개념 ( [가이드 문서 보기](redis/redis-개념.md) )
 
 ### 1) Redis 개요
@@ -106,6 +114,8 @@
 * Pattern 1 : 코드성 데이터 캐싱
 * Pattern 2 : 주기 생성 데이터 캐싱
 * Pattern 3 : E2E 구간 성능 향상
+
+
 
 ## 5. Redis Hands-in ( [가이드 문서 보기](redis/redis-hands-in.md) )
 
@@ -142,6 +152,10 @@
 * CRUD 테스트
 
 ### 8) Redis Clean up
+
+
+
+
 
 ## 별첨. KT Cloud Setup ( [가이드 문서 보기](ktcloud-setup/ktcloud-setup.md) )
 
