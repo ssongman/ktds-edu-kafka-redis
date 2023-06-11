@@ -15,16 +15,6 @@ spring:
         jaas:
           config: org.apache.kafka.common.security.scram.ScramLoginModule required username="my-user" password="McUI8xslZvTgp9ApNWygNDLi0cJLblPD";
         mechanism: SCRAM-SHA-512
-     
-#    consumer:
-#      group-id: my-topic-group
-#      auto-offset-reset: earliest   # latest(default), earliest
-#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer    # default
-#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # default
-      
-#    producer:
-#      key-serializer: org.apache.kafka.common.serialization.StringSerializer        # default
-#      value-serializer: org.apache.kafka.common.serialization.StringSerializer      # default
 
 topic:
-  name: my-topic
+  name: edu-topic__                 # 본인의 토픽명으로 수정할것
