@@ -84,6 +84,8 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 
 - 링크 : https://download.springsource.com/release/STS4/4.18.1.RELEASE/dist/e4.27/spring-tool-suite-4-4.18.1.RELEASE-e4.27.0-win32.win32.x86_64.self-extracting.jar
 - 설치
+  - 적당한 위치에 설치하자.
+
 - Workspace 설정
   - 위치 : C:\workspace_STS4.18.1
 
@@ -126,13 +128,14 @@ $ mkdir -p /c/githubrepo
 $ cd /c/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-kafka-redis.git
-Cloning into 'ktds-edu2'...
-remote: Enumerating objects: 424, done.
-remote: Counting objects: 100% (424/424), done.
-remote: Compressing objects: 100% (305/305), done.
-remote: Total 424 (delta 123), reused 397 (delta 96), pack-reused 0 eceiving objects:  88% (374/424), 11.09 MiB | 5.54 MiB/s
-Receiving objects: 100% (424/424), 12.94 MiB | 5.67 MiB/s, done.
-Resolving deltas: 100% (123/123), done.
+Cloning into 'ktds-edu-kafka-redis'...
+remote: Enumerating objects: 416, done.
+remote: Counting objects: 100% (416/416), done.
+remote: Compressing objects: 100% (276/276), done.
+remote: Total 416 (delta 153), reused 347 (delta 88), pack-reused 0
+Receiving objects: 100% (416/416), 8.63 MiB | 9.46 MiB/s, done.
+Resolving deltas: 100% (153/153), done.
+
 
 
 $ ll /c/githubrepo
