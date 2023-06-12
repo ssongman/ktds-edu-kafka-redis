@@ -182,7 +182,7 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 | 석미화 | bastion07 |  34.130.23.31  | edu-topic07  | edu-group07 |      |
 | 안성호 | bastion08 | 34.130.229.93  | edu-topic08  | edu-group08 |      |
 | 양행모 | bastion09 | 34.118.130.16  | edu-topic09  | edu-group09 |      |
-| 윤준구 | bastion10 | 34.118.132.174 | edu-topic10  | edu-group10 |      |
+| 윤준구 | bastion10 | 34.118.132.174 | edu-topic10  | edu-group10 | 불참 |
 | 윤하림 | bastion11 | 34.152.24.188  | edu-topic11  | edu-group11 |      |
 | 이동현 | bastion12 |  34.95.17.157  | edu-topic12  | edu-group12 |      |
 | 이영호 | bastion13 | 34.152.19.216  | edu-topic13  | edu-group13 |      |
@@ -253,7 +253,7 @@ Resolving deltas: 100% (95/95), done.
 
 
 ## 만약 ktds-edu-kafka-redis 존재한다면 최신 데이터를 한번 더 받는다.
-$ cd ~/githubrepo
+$ cd ~/githubrepo/ktds-edu-kafka-redis.git
 $ git pull
 
 
