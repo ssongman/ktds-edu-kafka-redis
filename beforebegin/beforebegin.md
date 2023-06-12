@@ -50,7 +50,7 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 
 ### (1) 설치
 
-- 링크 : https://typora.io/windows/typora-setup-x64.exe?0611
+- 링크 : https://download.typora.io/windows/typora-setup-x64.exe
 
 
 
