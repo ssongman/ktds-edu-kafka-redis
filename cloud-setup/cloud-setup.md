@@ -226,7 +226,7 @@ alias ky='kubectl -n yjsong'
 alias ki='kubectl -n istio-system'
 alias kb='kubectl -n bookinfo'
 alias kii='kubectl -n istio-ingress'
-alias kkf='kubectl -n kafka'
+alias kubectl -n kafka='kubectl -n kafka'
 alias krs='kubectl -n redis-system'
 
 ## alias 를 적용하려면 source 명령 수행
@@ -447,7 +447,7 @@ kafka             Active   11s
 
 
 # alias 설정
-$ alias kkf='kubectl -n kafka'
+$ alias kubectl -n kafka='kubectl -n kafka'
 ```
 
 
@@ -660,9 +660,9 @@ $ kubectl -n kafka  logs -f deploy/strimzi-cluster-operator
 ### (2) Kafka Cluster 확인
 
 ```sh
-$ kkf get pod -w
+$ kubectl -n kafka get pod -w
 
-$ kkf get pod
+$ kubectl -n kafka get pod
 NAME                                         READY   STATUS    RESTARTS   AGE
 my-cluster-entity-operator-d44f86494-cqp5b   3/3     Running   0          2m4s
 my-cluster-kafka-0                           1/1     Running   0          2m56s
@@ -678,7 +678,7 @@ strimzi-cluster-operator-fd6fb56f6-csrr4     1/1     Running   0          23h
 
 
 # Kafka Cluster 확인
-$ kkf get kafka
+$ kubectl -n kafka get kafka
 NAME         DESIRED KAFKA REPLICAS   DESIRED ZK REPLICAS   READY   WARNINGS
 my-cluster   3                        3                     True
 
@@ -1167,7 +1167,7 @@ $ kubectl -n kafka apply -f ./kafka/strimzi/monitoring/11.my-cluster-kafka-expor
 - 확인
 
 ```sh
-$ kkf get svc my-cluster-kafka-exporter
+$ kubectl -n kafka get svc my-cluster-kafka-exporter
 NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 my-cluster-kafka-exporter   ClusterIP   10.43.131.199   <none>        80/TCP    14s
 
@@ -1181,7 +1181,7 @@ my-cluster-kafka-exporter   ClusterIP   10.43.131.199   <none>        80/TCP    
 
 ```sh
 # my-cluster-kafka-exporter POD 내로 진입(bash 실행)
-$ kkf exec -it deploy/my-cluster-kafka-exporter -- bash
+$ kubectl -n kafka exec -it deploy/my-cluster-kafka-exporter -- bash
 
 
 # metric 이 유효한지 조회
@@ -1327,17 +1327,17 @@ EOF
 
 ```sh
 # pod 확인
-$ kkf get pod 
+$ kubectl -n kafka get pod 
 NAME                                          READY   STATUS    RESTARTS      AGE
 prometheus-server-5b5d787f8d-rb8zz            1/1     Running   0             4m36s
 
 # pod log 확인
-$ kkf logs -f deploy/prometheus-server
+$ kubectl -n kafka logs -f deploy/prometheus-server
 
 
 
 # svc 확인
-$ kkf get svc
+$ kubectl -n kafka get svc
 NAME                                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                               AGE
 ...
 prometheus-server                     ClusterIP   10.43.124.104   <none>        80/TCP                                117s
@@ -1346,7 +1346,7 @@ prometheus-server                     ClusterIP   10.43.124.104   <none>        
 
 
 # ClusterRoleBinding 확인
-$ kkf get ClusterRoleBinding prometheus-server
+$ kubectl -n kafka get ClusterRoleBinding prometheus-server
 NAME                ROLE                            AGE
 prometheus-server   ClusterRole/prometheus-server   36s
 
@@ -1480,18 +1480,18 @@ data:
 - 추가후 prometheus server 재기동
 
 ```sh
-$ kkf get pod
+$ kubectl -n kafka get pod
 NAME                                          READY   STATUS    RESTARTS      AGE
 ...
 prometheus-server-5dc67b6855-cdm54            1/1     Running   0             24m
 ...
 
 
-$ kkf delete pod prometheus-server-5dc67b6855-cdm54
+$ kubectl -n kafka delete pod prometheus-server-5dc67b6855-cdm54
 pod "prometheus-server-5dc67b6855-cdm54" deleted
 
 
-$ kkf get pod
+$ kubectl -n kafka get pod
 NAME                                          READY   STATUS    RESTARTS      AGE
 my-cluster-kafka-exporter-79b8c986f8-wg259    1/1     Running   1 (60m ago)   60m
 prometheus-server-5dc67b6855-67xts            0/1     Running   0             9s
