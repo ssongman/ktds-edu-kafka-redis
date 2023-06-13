@@ -173,23 +173,23 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 
 | 담당자 | VM Server | VM  Server IP  | kafka  Topic | kafka Group | 비고 |
 | :----: | :-------: | :------------: | :----------: | :---------: | :--: |
-| 송양종 | bastion01 |  34.27.41.215  | edu-topic01  | edu-group01 |      |
-| 송양종 | bastion02 | 34.95.147.185  | edu-topic02  | edu-group02 |      |
-| 김상훈 | bastion03 | 35.247.230.92  | edu-topic03  | edu-group03 |      |
-| 강현종 | bastion04 | 34.95.214.135  | edu-topic04  | edu-group04 |      |
-| 김석천 | bastion05 | 34.95.196.156  | edu-topic05  | edu-group05 |      |
-| 김용건 | bastion06 |  34.95.252.6   | edu-topic06  | edu-group06 |      |
-| 석미화 | bastion07 |  34.130.23.31  | edu-topic07  | edu-group07 |      |
-| 안성호 | bastion08 | 34.130.229.93  | edu-topic08  | edu-group08 |      |
-| 양행모 | bastion09 | 34.118.130.16  | edu-topic09  | edu-group09 |      |
-| 윤준구 | bastion10 | 34.118.132.174 | edu-topic10  | edu-group10 | 불참 |
-| 윤하림 | bastion11 | 34.152.24.188  | edu-topic11  | edu-group11 |      |
-| 이동현 | bastion12 |  34.95.17.157  | edu-topic12  | edu-group12 |      |
-| 이영호 | bastion13 | 34.152.19.216  | edu-topic13  | edu-group13 |      |
-| 임성식 | bastion14 | 35.185.244.221 | edu-topic14  | edu-group14 |      |
-| 조은하 | bastion15 | 34.83.150.237  | edu-topic15  | edu-group15 |      |
-| 최소현 | bastion16 | 34.168.237.140 | edu-topic16  | edu-group16 |      |
-|        | bastion17 | 35.227.175.75  | edu-topic17  | edu-group17 |      |
+| 송양xx | bastion01 |  34.xx.xx.xx   | edu-topic01  | edu-group01 |      |
+|        | bastion02 |                | edu-topic02  | edu-group02 |      |
+|        | bastion03 |                | edu-topic03  | edu-group03 |      |
+|        | bastion04 |                | edu-topic04  | edu-group04 |      |
+|        | bastion05 |                | edu-topic05  | edu-group05 |      |
+|        | bastion06 |                | edu-topic06  | edu-group06 |      |
+|        | bastion07 |                | edu-topic07  | edu-group07 |      |
+|        | bastion08 |                | edu-topic08  | edu-group08 |      |
+|        | bastion09 |                | edu-topic09  | edu-group09 |      |
+|        | bastion10 |                | edu-topic10  | edu-group10 |      |
+|        | bastion11 |                | edu-topic11  | edu-group11 |      |
+|        | bastion12 |                | edu-topic12  | edu-group12 |      |
+|        | bastion13 |                | edu-topic13  | edu-group13 |      |
+|        | bastion14 |                | edu-topic14  | edu-group14 |      |
+|        | bastion15 |                | edu-topic15  | edu-group15 |      |
+|        | bastion16 |                | edu-topic16  | edu-group16 |      |
+|        | bastion17 |                | edu-topic17  | edu-group17 |      |
 |        |           |                | edu-topic18  | edu-group18 |      |
 |        |           |                | edu-topic19  | edu-group19 |      |
 |        |           |                | edu-topic20  | edu-group20 |      |
