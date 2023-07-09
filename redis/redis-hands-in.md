@@ -933,7 +933,7 @@ Redis 6.0 이상부터는 계정별 access 수준을 정의할 수 있다.
 
 
 
-### 5.1 Redis Client 확인
+### (1) Redis Client 확인
 
 bastion Server 에서 Kubernetes redis access 테스트를 위해 Container redis client 를 설치하자.
 
@@ -963,7 +963,7 @@ $ redis-cli -h 35.xx.xx.xx -c -a new1234 -p 32300
 
 
 
-### 5.2 ACL 기본명령
+### (2) ACL 기본명령
 
 ```sh
 
@@ -1013,7 +1013,7 @@ OK
 
 
 
-### 5.3 읽기전용 계정 생성
+### (3) 읽기전용 계정 생성
 
 - 읽기전용 계정 테스트
 
@@ -1063,7 +1063,7 @@ OK
 
 
 
-### 5.4 특정 key만 접근 허용
+### (4) 특정 key만 접근 허용
 
 - song으로 로그인 하면 song으로 시작하는 key 만 get/set 가능하도록 설정
 
