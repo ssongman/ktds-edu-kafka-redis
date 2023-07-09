@@ -772,7 +772,7 @@ io_threads_active:0
 
 
 
-### (3) set / get 확인
+### (4) set / get 확인
 
 ```sh
 ## redis-client pod 내부에서...
@@ -1167,13 +1167,13 @@ $ podman ps -a
 
 
 
-# 6. [공용서버] Redis Server 접근
+# 4. [공용서버] Redis Server 접근
 
 아래부터는 실습은 공용서버에서 수행한다.
 
 
 
-## 6.1 Monitoring
+## 4.1 Monitoring
 
 이미 설치되어 있는 Monitoring tool 을 함께 보면서 실습을 할 것이다.
 
@@ -1199,7 +1199,7 @@ $ podman ps -a
 
 
 
-## 6.2 공용서버 Redis Access
+## 4.2 공용서버 Redis Access
 
 ### (1) 접속정보 확인
 
@@ -1268,7 +1268,7 @@ OK
 
 
 
-## 6.3 Clean Up
+## 4.3 Clean Up
 
 ```sh
 # Bastion Server 에서...
@@ -1287,11 +1287,11 @@ $ podman ps -a
 
 
 
-# 7. Java Sample
+# 5. Java Sample
 
 
 
-## 7.1 Jedis vs Lettuce
+## 5.1 Jedis vs Lettuce
 
 
 
@@ -1312,7 +1312,7 @@ Java에서 Redis Client 를 사용할때는 Jedis 와 Lettuce  를 주로 사용
 
 
 
-## 7.2 redis-sample
+## 5.2 redis-sample
 
 ### (1) sample import
 
@@ -1429,7 +1429,7 @@ OK
 
 
 
-## 7.3 CRUD 테스트
+## 5.3 CRUD 테스트
 
 
 
@@ -1444,7 +1444,7 @@ Redis Web UI tool 로 모니터 하면서 아래 CRUD 테스트를진행해 보�
     - Filter : Hash - Hash 값만 조회한다.
 
 
-  
+
 
 
 ### (2) health Check
