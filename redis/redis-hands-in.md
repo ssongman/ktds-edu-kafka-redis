@@ -111,10 +111,11 @@ $ mkdir -p ~/temp/helm/charts
 $ helm fetch bitnami/redis-cluster
 
 $ ll
--rw-r--r-- 1 ktdseduuser ktdseduuser 105291 Jun 11 09:56 redis-cluster-8.6.2.tgz
+-rw-r--r-- 1 ktdseduuser ktdseduuser 105787 Jul  9 06:39 redis-cluster-8.6.6.tgz
 
 
-$ tar -xzvf redis-cluster-8.6.2.tgz
+
+$ tar -xzvf redis-cluster-8.6.6.tgz
 ...
 
 $ cd redis-cluster
@@ -157,6 +158,19 @@ $ helm -n redis-system install my-release . \
     --set cluster.nodes=6 \
     --set cluster.replicas=1 \
     --dry-run=true
+    
+    
+    ### 추가옵션 ###
+    ### 아래와 같이설정되면 svc 명으로 redirect 됨
+    --set cluster.externalAccess.enabled=true \
+    --set cluster.externalAccess.service.type=LoadBalancer \
+    --set cluster.externalAccess.service.loadBalancerIP[0]=my-release-redis-cluster-0-svc \
+    --set cluster.externalAccess.service.loadBalancerIP[1]=my-release-redis-cluster-1-svc \
+    --set cluster.externalAccess.service.loadBalancerIP[2]=my-release-redis-cluster-2-svc \
+    --set cluster.externalAccess.service.loadBalancerIP[3]=my-release-redis-cluster-3-svc \
+    --set cluster.externalAccess.service.loadBalancerIP[4]=my-release-redis-cluster-4-svc \
+    --set cluster.externalAccess.service.loadBalancerIP[5]=my-release-redis-cluster-5-svc \
+    
 
 ## 실행
 $ helm -n redis-system install my-release . \
@@ -247,7 +261,7 @@ my-release-redis-cluster            ClusterIP   10.43.13.151   <none>        637
 
 
 
-## 2.4 Internal Access
+## 2.3 Internal Access
 
 redis client를 cluster 내부에서 실행후 접근하는 방법을 알아보자.
 
@@ -278,7 +292,9 @@ I have no name!@redis-client-69dcc9c76d-kc8r9:/$    # <-- 이런 Prompt가 나�
 
 
 
-### (2) Redis-cluster 상태 확인
+### (2) Redis-cli 으로 확인
+
+#### Redis-cli 실행
 
 ```sh
 
@@ -328,7 +344,7 @@ total_cluster_links_buffer_limit_exceeded:0
 
 
 
-### (3) set / get 확인
+#### set / get 확인
 
 ```sh
 
@@ -388,9 +404,154 @@ OK
 
 
 
+### (3) python 으로 확인
+
+Kubernetes Cluster 내에서 redis 접근 가능여부를 확인하기 위해 python 을 설치후 redis 에 connect 해 보자.
 
 
-## 2.5 결론
+
+#### python  설치
+
+```sh
+# python deploy
+$ kubectl -n redis-system create deploy python --image=python:3.9 -- sleep 365d
+
+
+# 설치진행 확인
+$ kubectl -n redis-system get pod
+...
+python-fb57f7bd4-4w6pz                       1/1     Running   0              32s
+...
+
+## READY 상태가 1/1 로 변할때까지 대기...
+## 약 1분 소요
+
+
+# python pod 내부로 진입( bash 명령 수행)
+$ kubectl -n redis-system exec -it deploy/python -- bash
+root@python-7d59455985-ml8vw:/#                  <-- 이런 prompt 가 정상
+
+
+```
+
+
+
+#### python library install
+
+kafka 에 접근하기 위해서 kafka-python 을 설치해야 한다.
+
+```bash
+# python pod 내부에서
+
+$ pip install redis-py-cluster
+
+Collecting redis-py-cluster
+  Downloading redis_py_cluster-2.1.3-py2.py3-none-any.whl (42 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 5.5 MB/s eta 0:00:00
+Collecting redis<4.0.0,>=3.0.0
+  Downloading redis-3.5.3-py2.py3-none-any.whl (72 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.1/72.1 kB 10.8 MB/s eta 0:00:00
+Installing collected packages: redis, redis-py-cluster
+  Attempting uninstall: redis
+    Found existing installation: redis 4.6.0
+    Uninstalling redis-4.6.0:
+      Successfully uninstalled redis-4.6.0
+Successfully installed redis-3.5.3 redis-py-cluster-2.1.3
+
+
+```
+
+
+
+#### [참고] redis host 확인
+
+```sh
+# internal 접근을 위한 host 확인
+# nc 명령으로 접근가능여부를 확인할 수 있다.
+
+$ apt update
+$ apt install netcat
+
+$ nc -zv my-release-redis-cluster.redis-system.svc 6379
+
+Connection to my-release-redis-cluster.redis-system.svc (10.43.47.183) 6379 port [tcp/redis] succeeded!
+
+$ nc -zv my-release-redis-cluster-0-svc.redis-system.svc 6379
+$ nc -zv my-release-redis-cluster-1-svc.redis-system.svc 6379
+$ nc -zv my-release-redis-cluster-2-svc.redis-system.svc 6379
+$ nc -zv my-release-redis-cluster-3-svc.redis-system.svc 6379
+$ nc -zv my-release-redis-cluster-4-svc.redis-system.svc 6379
+$ nc -zv my-release-redis-cluster-5-svc.redis-system.svc 6379
+
+
+```
+
+
+
+#### redis 확인
+
+consumer 실행을 위해서 python cli 환경으로 들어가자.
+
+```sh
+# python pod 내부에서
+$ python
+
+Python 3.9.13 (main, May 28 2022, 13:56:03)
+[GCC 10.2.1 20210110] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>>
+
+```
+
+
+
+CLI 환경에서 아래  Python 명령을 하나씩 실행해 보자.
+
+```python
+from rediscluster import RedisCluster
+
+startup_nodes = [{"host":"my-release-redis-cluster", "port":"6379"}]
+rc = RedisCluster(startup_nodes=startup_nodes, 
+                      decode_responses=True, 
+                      skip_full_coverage_check=True,
+                     password="new1234")
+
+print(rc.cluster('slots'))
+
+'''
+{
+(0, 5460): {'master': ('my-release-redis-cluster-0-svc', 6379), 'slaves': [('my-release-redis-cluster-4-svc', 6379)]}, 
+(5461, 10922): {'master': ('my-release-redis-cluster-1-svc', 6379), 'slaves': [('my-release-redis-cluster-5-svc', 6379)]}, 
+(10923, 16383): {'master': ('my-release-redis-cluster-2-svc', 6379), 'slaves': [('my-release-redis-cluster-3-svc', 6379)]}
+}
+'''
+
+
+# redis set
+rc.set("a", "python1")
+rc.set("b", "python2")
+rc.set("c", "python3")
+
+# redis get
+rc.get("a")
+rc.get("b")
+rc.get("c")
+
+# delete key
+rc.delete("c")
+
+# 기타
+rc.set('foo','bar')
+print(rc.get('foo'))
+key_list  = rc.keys("*")
+print(key_list)
+```
+
+
+
+
+
+## 2.4 결론
 
 - External (Cluster 외부) 에서 access 하기 위해서 node port 를 이용해야 함
 
@@ -408,7 +569,7 @@ OK
 
 
 
-## 2.6 Clean Up
+## 2.5 Clean Up
 
 ```sh
 
@@ -638,7 +799,7 @@ $ helm -n redis-system delete my-release
 
 
 
-## 3.2 pod / svc 확인
+### (3) pod / svc 확인
 
 ```sh
 $ kubectl -n redis-system get pod
@@ -665,7 +826,7 @@ my-release-redis-replicas   NodePort    10.103.228.149   <none>        6379:3231
 
 
 
-## 3.4. Internal Access
+## 3.2 Internal Access
 
 redis client를 cluster 내부에서 실행후 접근하는 방법을 알아보자.
 
@@ -698,7 +859,9 @@ my-release-redis-replicas-2   1/1     Running   0          12m
 
 
 
-### (2) Redis client 실행
+### (2) Redis-cli 으로 확인
+
+#### Redis-cli 실행
 
 먼저 아래와 같이 동일한 Namespace 에 redis-client 를 실행한다.
 
@@ -727,7 +890,7 @@ I have no name!@redis-client-69dcc9c76d-rgtgx:/$    # <-- 이런 Prompt 가 나�
 
 
 
-### (3) Redis Info
+#### Redis Info
 
 ```sh
 ## redis-client pod 내부에서...
@@ -772,7 +935,7 @@ io_threads_active:0
 
 
 
-### (4) set / get 확인
+#### set / get 확인
 
 ```sh
 ## redis-client pod 내부에서...
@@ -815,7 +978,151 @@ my-release-redis-master:6379> get d
 
 
 
-## 3.5 External Access
+
+
+
+
+
+
+### (3) python 으로 확인
+
+Kubernetes Cluster 내에서 redis 접근 가능여부를 확인하기 위해 python 을 설치후 redis 에 connect 해 보자.
+
+
+
+#### python  설치
+
+```sh
+# python deploy
+$ kubectl -n redis-system create deploy python --image=python:3.9 -- sleep 365d
+
+
+# 설치진행 확인
+$ kubectl -n redis-system get pod
+...
+python-fb57f7bd4-4w6pz                       1/1     Running   0              32s
+...
+
+## READY 상태가 1/1 로 변할때까지 대기...
+## 약 1분 소요
+
+
+# python pod 내부로 진입( bash 명령 수행)
+$ kubectl -n redis-system exec -it deploy/python -- bash
+root@python-7d59455985-ml8vw:/#                  <-- 이런 prompt 가 정상
+
+
+```
+
+
+
+#### python library install
+
+kafka 에 접근하기 위해서 kafka-python 을 설치해야 한다.
+
+```bash
+# python pod 내부에서
+
+$ pip install redis
+
+Collecting redis
+  Downloading redis-4.6.0-py3-none-any.whl (241 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 241.1/241.1 kB 24.0 MB/s eta 0:00:00
+Collecting async-timeout>=4.0.2
+  Downloading async_timeout-4.0.2-py3-none-any.whl (5.8 kB)
+Installing collected packages: async-timeout, redis
+Successfully installed async-timeout-4.0.2 redis-4.6.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+
+[notice] A new release of pip is available: 23.0.1 -> 23.1.2
+[notice] To update, run: pip install --upgrade pip
+
+
+```
+
+
+
+#### [참고] redis host 확인
+
+```sh
+# internal 접근을 위한 host 확인
+# nc 명령으로 접근가능여부를 확인할 수 있다.
+
+$ apt update
+$ apt install netcat
+
+$ nc -zv my-release-redis-master.redis-system.svc 6379
+
+Connection to my-release-redis-master.redis-system.svc (10.43.83.105) 6379 port [tcp/redis] succeeded!
+
+
+```
+
+
+
+#### redis 확인
+
+consumer 실행을 위해서 python cli 환경으로 들어가자.
+
+```sh
+# python pod 내부에서
+$ python
+
+Python 3.9.13 (main, May 28 2022, 13:56:03)
+[GCC 10.2.1 20210110] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>>
+
+```
+
+
+
+CLI 환경에서 아래  Python 명령을 하나씩 실행해 보자.
+
+```python
+import redis
+
+# redis 연결
+rd = redis.Redis(host='my-release-redis-master', port=6379, db=0, password="new1234")
+#rd = redis.StrictRedis(host='my-release-redis-master', port=6379, db=0, password="new1234")
+#rd = redis.Redis(host='localhost', port=6379, decode_responses=True)
+#rc = RedisCluster(host='my-release-redis-cluster', port=6379)
+
+'''
+r = redis.Redis(
+    host="my-redis.cloud.redislabs.com", port=6379,
+    username="default", # use your Redis user. More info https://redis.io/docs/management/security/acl/
+    password="secret", # use your Redis password
+    ssl=True,
+    ssl_certfile="./redis_user.crt",
+    ssl_keyfile="./redis_user_private.key",
+    ssl_ca_certs="./redis_ca.pem",
+)
+'''
+
+# redis set
+rd.set("a", "python1")
+rd.set("b", "python2")
+rd.set("c", "python3")
+
+# redis get
+rd.get("a")
+rd.get("b")
+rd.get("c")
+
+# delete key
+rd.delete("c")
+```
+
+
+
+
+
+
+
+
+
+## 3.3 External Access
 
 redis client를 cluster 외부에서 실행후 접근하는 방법을 알아보자.
 
@@ -919,7 +1226,7 @@ OK
 
 
 
-## 3.6. ACL
+## 3.4 ACL
 
 Redis 6.0 이상부터는 계정별 access 수준을 정의할 수 있다.  
 
@@ -1130,7 +1437,7 @@ OK
 
 
 
-## 3.7 Clean Up
+## 3.5 Clean Up
 
 ```sh
 # Bastion Server 에서...
@@ -1144,14 +1451,20 @@ $ helm -n redis-system ls
 # 2) redis-client 삭제
 $ kubectl -n redis-system delete deploy/redis-client
 # 확인
-$ kubectl -n redis-system get all
+$ kubectl -n redis-system get deploy
+
+# 3) python 삭제
+$ kubectl -n redis-system delete deploy/python
+# 확인
+$ kubectl -n redis-system get deploy
 
 
-# 3) namespace 삭제
+
+# 4) namespace 삭제
 $ kubectl delete namespace redis-system
 
 
-# 4) Container 삭제
+# 5) Container 삭제
 $ podman rm -f redis-client
 $ podman ps -a
 
