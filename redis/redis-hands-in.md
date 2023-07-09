@@ -510,6 +510,8 @@ CLI 환경에서 아래  Python 명령을 하나씩 실행해 보자.
 ```python
 from rediscluster import RedisCluster
 
+
+
 startup_nodes = [{"host":"my-release-redis-cluster", "port":"6379"}]
 rc = RedisCluster(startup_nodes=startup_nodes, 
                       decode_responses=True, 
