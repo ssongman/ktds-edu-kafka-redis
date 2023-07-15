@@ -154,7 +154,7 @@ $ cd  ~/temp/helm/charts/redis-cluster
 $ helm -n redis-system install my-release . \
     --set password=new1234 \
     --set persistence.enabled=false \
-    --set metrics.enabled=true \
+    --set metrics.enabled=false \
     --set cluster.nodes=6 \
     --set cluster.replicas=1 \
     --dry-run=true
@@ -553,7 +553,19 @@ print(key_list)
 
 
 
-## 2.4 결론
+
+
+## 2.4 External Access
+
+Redis Cluster 는 K8s 내부에서만 사용가능한 주소체계로 redirect 되므로 k8s 외부에서는 접근이 불가능하다.
+
+### 
+
+
+
+
+
+## 2.5 결론
 
 - External (Cluster 외부) 에서 access 하기 위해서 node port 를 이용해야 함
 
@@ -571,7 +583,7 @@ print(key_list)
 
 
 
-## 2.5 Clean Up
+## 2.6 Clean Up
 
 ```sh
 
