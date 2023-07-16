@@ -44,6 +44,12 @@ bitnami/redis                                   17.11.2         7.0.11          
 bitnami/redis-cluster                           8.6.1           7.0.11          Redis(R) is an open source, scalable, distribut...
 
 
+# 2023.07.15
+NAME                    CHART VERSION   APP VERSION     DESCRIPTION
+bitnami/redis           17.11.8         7.0.12          Redis(R) is an open source, advanced key-value ...
+bitnami/redis-cluster   8.6.7           7.0.12          Redis(R) is an open source, scalable, distribut...
+
+
 ```
 
 우리가 사용할 redis-cluster 버젼은 chart version 8.6.1( app version: 7.0.11) 이다.
@@ -171,9 +177,11 @@ NAME            NAMESPACE       REVISION        UPDATED                         
 my-release      redis-system    1               2023-06-11 09:58:55.994892092 +0000 UTC deployed        redis-cluster-8.6.2     7.0.11
 
 
-
+## 상태확인
 $ helm -n redis-system status my-release
 
+# helm 삭제
+$ helm -n redis-system delete my-release
 
 ```
 
@@ -965,35 +973,65 @@ bf04da290df7003c4dacb45cbdf2ac40d696663c 10.42.0.131:6379@16379 slave 9d6c30fdad
 9d6c30fdada95856e40e1634c51113a85dd50c53 10.42.0.127:6379@16379 master - 0 1689169952749 1 connected 0-5460
 ff84e2066b155907cf0981f9c37bbc2686d8c880 10.42.0.130:6379@16379 slave 9fa9dc6cab3398624df40713b4bc675b1322184c 0 1689169952000 3 connected
 
-
 ```
 
 
+
+
+
+
+
+
+
+참고: 
+
+https://mozi.tistory.com/382
+
+
+
+### (4) FiailOver with meet-replicate
+
+* 순서
+
+```
+1) forget 명령으로 해당노드를 group에서 제거한다.
+2) meet 명령으로 node 추가
+   - 일반적으로 master node 로 추가된다.  그러므로 slave 로 변경해 줘야 한다.
+3) replicate 명령으로 slave 설정을 한다.
+```
 
 
 
 ```sh
 
-
-CLUSTER COUNT-FAILURE-REPORTS node-id
-
-
-# 정상 node-id 를 확인해보자.
-CLUSTER COUNT-FAILURE-REPORTS 9fa9dc6cab3398624df40713b4bc675b1322184c
-(integer) 0
-
-CLUSTER COUNT-FAILURE-REPORTS 77b47a2e6cd38a19ce7b71eaf142b0ef87de16b9
-(integer) 0
-
-CLUSTER COUNT-FAILURE-REPORTS ff84e2066b155907cf0981f9c37bbc2686d8c880
-(integer) 0
+# 작업전
+$ cluster nodes
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689391983000 2 connected 5461-10922
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 master - 0 1689391981000 7 connected 10923-16383
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 myself,master - 0 1689391982000 1 connected 0-5460
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 95acfe21a64250fa3359eb10e5f9cd23d38ec36c 0 1689391983141 7 connected
+217cf57cc8a39cac12dd9d614317ad55fe4c57e4 10.42.0.171:6379@16379 master,fail - 1689391538631 0 0 connected
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 slave a2e3366d2310533a6cab5181afa197c93a5904a3 0 1689391984146 1 connected
 
 
+# 1) forget
+$ redis-cli -h localhost -a $REDIS_PASSWORD CLUSTER FORGET 217cf57cc8a39cac12dd9d614317ad55fe4c57e4
+  
+# 2) meet
+$ redis-cli -h my-release-redis-cluster -a $REDIS_PASSWORD CLUSTER meet 10.42.0.174 6379
+  
+# 3) replicate
+$ redis-cli -h localhost -c -a $REDIS_PASSWORD CLUSTER REPLICATE 12a06ae7cd0ae7efd267814e28a83ff7824b8178
 
-# 실패 node-id 를 확인해보자.
-CLUSTER COUNT-FAILURE-REPORTS 37ede9c99774fcdb6ad3b34f7d681061244fba93
-(integer) 2
 
+# 작업후
+$ cluster nodes
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689391225000 2 connected 5461-10922
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 master - 0 1689391224000 7 connected 10923-16383
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 myself,master - 0 1689391226000 1 connected 0-5460
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 95acfe21a64250fa3359eb10e5f9cd23d38ec36c 0 1689391226830 7 connected
+217cf57cc8a39cac12dd9d614317ad55fe4c57e4 10.42.0.171:6379@16379 master,fail - 1689390078333 0 0 connected
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 slave a2e3366d2310533a6cab5181afa197c93a5904a3 0 1689391224817 1 connected
 
 ```
 
@@ -1001,16 +1039,59 @@ CLUSTER COUNT-FAILURE-REPORTS 37ede9c99774fcdb6ad3b34f7d681061244fba93
 
 
 
+### (5) FiailOver with add-node
 
+* 순서
+
+```
+1) forget 명령으로 해당노드를 group에서 제거한다.
+2) add-node 옵션으로 Slave Node 추가
+```
 
 
 
 ```sh
 
-CLUSTER FAILOVER [FORCE | TAKEOVER]
+# 샘플
+$ redis-cli --cluster \
+    add-node 127.0.0.1:7001 127.0.0.1:7000 \
+    --cluster-slave 869859e396c881b3c26f2a386c1495235225b57b
+
+# 작업전
+$ cluster nodes
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 master - 0 1689469636411 8 connected 0-5460
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 master - 0 1689469637000 7 connected 10923-16383
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689469637417 2 connected 5461-10922
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 master,fail - 1689469515457 1689469511429 1 connected
+da5aaba2df35da46204ff96eb4be853ccd507606 10.42.0.174:6379@16379 slave 12a06ae7cd0ae7efd267814e28a83ff7824b8178 0 1689469636000 2 connected
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 myself,slave 95acfe21a64250fa3359eb10e5f9cd23d38ec36c 0 1689469635000 7 connected
 
 
+# 1) forget
+## 모든 node 에서 1분이내에 수행해야 한다.
+## 그렇지 않으면 gosship protocol 에의해서 원복된다.
 
+$ redis-cli CLUSTER FORGET a2e3366d2310533a6cab5181afa197c93a5904a3
+OK
+
+
+# 2) add-node
+## format
+## [슬레이브 IP:PORT] , [클러스터 노드 IP:PORT], [--cluster-slave 옵션], [마스터가 될 노드 ID]
+
+$ redis-cli -a new1234 \
+    --cluster add-node 10.42.0.175:6379 10.42.0.172:6379 \
+    --cluster-slave b109ed74a0e639d34067d1bf78a860931d0ee941
+
+
+# 작업후
+$ cluster nodes
+ac04246dfccf850cbdf78565a52f131b1160233a 10.42.0.175:6379@16379 slave b109ed74a0e639d34067d1bf78a860931d0ee941 0 1689470266001 8 connected
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 95acfe21a64250fa3359eb10e5f9cd23d38ec36c 0 1689470264000 7 connected
+da5aaba2df35da46204ff96eb4be853ccd507606 10.42.0.174:6379@16379 slave 12a06ae7cd0ae7efd267814e28a83ff7824b8178 0 1689470264996 2 connected
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 myself,master - 0 1689470262000 8 connected 0-5460
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689470264000 2 connected 5461-10922
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 master - 0 1689470263990 7 connected 10923-16383
 
 ```
 
@@ -1018,11 +1099,7 @@ CLUSTER FAILOVER [FORCE | TAKEOVER]
 
 
 
-
-
-
-
-
+ 
 
 
 
@@ -1037,8 +1114,6 @@ CLUSTER FAILOVER [FORCE | TAKEOVER]
 참고링크 : 
 
 https://redis.io/commands/cluster-addslots/
-
-
 
 
 
@@ -1187,19 +1262,35 @@ M: 3da89f162fbe67e2bc76f5ae1a1301ecaee9931f my-release-redis-cluster-0-svc:6379
 
 ### rebalance
 
+Cluste node Slot 재분배한다.
+
+Hash Slot 의 번호는 CRC16(key) mod 16384 의 값으로 만들어진다.
+
+Cluster 를 운영하다 보면 특정 Node 에 Slot 이 몰리 있는 경우가 있는데 
+
+이럴 경우 특정 서버의 부하가 생겨 서비스에 장애가 발생할 수 있다.
+
+주기적인 모니터링을 통해 Slot 을 재분배 해줘야 한다.
+
 ```sh
 
-
+# format
   rebalance      host:port
                  --cluster-weight <node1=w1...nodeN=wN>
-                 --cluster-use-empty-masters
+                 --cluster-use-empty-masters      <-- 추가한 Master Node 까지 Slot을 재분배
                  --cluster-timeout <arg>
                  --cluster-simulate
                  --cluster-pipeline <arg>
                  --cluster-threshold <arg>
                  --cluster-replace
-                 
-                 
+
+# 명령어
+## redis-cli --cluster rebalance [Master Node IP]:[Master Node Port]
+
+
+# 샘플
+## redis-cli --cluster rebalance 127.0.0.1:7000
+
 
 # rebalance 1
 $ redis-cli -h my-release-redis-cluster -a new1234 \
@@ -1375,9 +1466,17 @@ M: 3da89f162fbe67e2bc76f5ae1a1301ecaee9931f my-release-redis-cluster-0-svc:6379
 >>> Check for multiple slot owners...
 [OK] No multiple owners found.
 
-
 # error 를 리턴한다.
 
+
+
+
+# master node check
+$ redis-cli -h my-release-redis-cluster -a new1234 \
+    --cluster check 10.42.0.175:6379 \
+    --cluster-search-multiple-owners
+    
+    
 
 
     
@@ -1459,33 +1558,106 @@ $ redis-cli -h my-release-redis-cluster -a new1234 cluster help
 
 
 
-### forget
+
+
+
+
+
+
+### COUNT-FAILURE-REPORTS
 
 ```sh
 
-
-$ redis-cli -h my-release-redis-cluster -a new1234 \
-    cluster nodes
-
-63d3744de13f2898137d4b90c55cc3639cfebe49 :0@0 master,fail,noaddr - 1689084949639 1689084947000 1 disconnected
-cd6820769a5b3d75a1dd5e9739eb264fb6f60ab1 my-release-redis-cluster-2-svc:6379@16379 master - 0 1689089855416 3 connected 10923-16383
-5953f810b2bf73c283c393c4ee9f725775759af3 my-release-redis-cluster-5-svc:6379@16379 slave fbdec1c82805e36da85530f0451a7ebcc63ac458 0 1689089853403 2 connected
-8fd49b4fb17c743a7f666e6a30b659fa39ecf73c my-release-redis-cluster-4-svc:6379@16379 master - 0 1689089854000 7 connected 0-5460
-fbdec1c82805e36da85530f0451a7ebcc63ac458 my-release-redis-cluster-1-svc:6379@16379 master - 0 1689089854408 2 connected 5461-10922
-1de28c8c3436e9b8f42a6a80382fcdc4903a97e3 my-release-redis-cluster-3-svc:6379@16379 myself,slave cd6820769a5b3d75a1dd5e9739eb264fb6f60ab1 0 1689089854000 3 connected
+CLUSTER COUNT-FAILURE-REPORTS node-id
 
 
-# 다운된 노드를 클러스터에서 제거한다.
-my-release-redis-cluster:6379> cluster forget 63d3744de13f2898137d4b90c55cc3639cfebe49
+# 정상 node-id 를 확인해보자.
+CLUSTER COUNT-FAILURE-REPORTS 9fa9dc6cab3398624df40713b4bc675b1322184c
+(integer) 0
+
+CLUSTER COUNT-FAILURE-REPORTS 77b47a2e6cd38a19ce7b71eaf142b0ef87de16b9
+(integer) 0
+
+CLUSTER COUNT-FAILURE-REPORTS ff84e2066b155907cf0981f9c37bbc2686d8c880
+(integer) 0
+
+
+
+# 실패 node-id 를 확인해보자.
+CLUSTER COUNT-FAILURE-REPORTS 37ede9c99774fcdb6ad3b34f7d681061244fba93
+(integer) 2
+
+
+```
+
+
+
+
+
+
+
+
+
+```sh
+CLUSTER FAILOVER [FORCE | TAKEOVER]
+
+```
+
+
+
+
+
+
+
+### forget
+
+scale down 시점등에서 불필요한 node를 cluster 에서 제거할때 사용한다.
+
+gosship protocol 에 의해서 session 이 처리되지않기를바라면서 최대한 빨리 모든 노드에 forge 명령을 보내야 성공할 수 있다.
+
+일반적으로 60초 안에 처리해야 한다.
+
+```sh
+
+# cluster 확인
+$ redis-cli -h my-release-redis-cluster -c -a new1234
+
+$ cluster nodes
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689391983000 2 connected 5461-10922
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 master - 0 1689391981000 7 connected 10923-16383
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 myself,master - 0 1689391982000 1 connected 0-5460
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 95acfe21a64250fa3359eb10e5f9cd23d38ec36c 0 1689391983141 7 connected
+217cf57cc8a39cac12dd9d614317ad55fe4c57e4 10.42.0.171:6379@16379 master,fail - 1689391538631 0 0 connected
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 slave a2e3366d2310533a6cab5181afa197c93a5904a3 0 1689391984146 1 connected
+
+
+
+$ echo $REDIS_PASSWORD
+
+
+
+# 각 node 에서 아래 명령 수행한다.
+
+$ redis-cli -h localhost -a $REDIS_PASSWORD CLUSTER NODES
+  redis-cli -h localhost -a $REDIS_PASSWORD CLUSTER FORGET 217cf57cc8a39cac12dd9d614317ad55fe4c57e4
+  redis-cli -h localhost -a $REDIS_PASSWORD CLUSTER NODES
+
+
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689389927000 2 connected 5461-10922
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 slave a2e3366d2310533a6cab5181afa197c93a5904a3 0 1689389927876 1 connected
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 myself,master - 0 1689389926000 7 connected 10923-16383
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 master - 0 1689389925867 1 connected 0-5460
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 12a06ae7cd0ae7efd267814e28a83ff7824b8178 0 1689389926872 2 connected
+217cf57cc8a39cac12dd9d614317ad55fe4c57e4 10.42.0.171:6379@16379 master,fail - 1689389479341 1689389476321 3 connected
+
 OK
 
-# node 확인
-my-release-redis-cluster:6379> cluster nodes
-fbdec1c82805e36da85530f0451a7ebcc63ac458 my-release-redis-cluster-1-svc:6379@16379 master - 0 1689089908000 2 connected 5461-10922
-cd6820769a5b3d75a1dd5e9739eb264fb6f60ab1 my-release-redis-cluster-2-svc:6379@16379 myself,master - 0 1689089906000 3 connected 10923-16383
-8fd49b4fb17c743a7f666e6a30b659fa39ecf73c my-release-redis-cluster-4-svc:6379@16379 master - 0 1689089908075 7 connected 0-5460
-5953f810b2bf73c283c393c4ee9f725775759af3 my-release-redis-cluster-5-svc:6379@16379 slave fbdec1c82805e36da85530f0451a7ebcc63ac458 0 1689089907070 2 connected
-1de28c8c3436e9b8f42a6a80382fcdc4903a97e3 my-release-redis-cluster-3-svc:6379@16379 slave cd6820769a5b3d75a1dd5e9739eb264fb6f60ab1 0 1689089909080 3 connected
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689389927000 2 connected 5461-10922
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 slave a2e3366d2310533a6cab5181afa197c93a5904a3 0 1689389927876 1 connected
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 myself,master - 0 1689389926000 7 connected 10923-16383
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 master - 0 1689389925867 1 connected 0-5460
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 12a06ae7cd0ae7efd267814e28a83ff7824b8178 0 1689389926872 2 connected
+
 
 
 # info 확인
@@ -1495,7 +1667,7 @@ cluster_slots_assigned:16384
 cluster_slots_ok:16384
 cluster_slots_pfail:0
 cluster_slots_fail:0
-cluster_known_nodes:5
+cluster_known_nodes:5           <----
 cluster_size:3
 cluster_current_epoch:7
 cluster_my_epoch:3
@@ -1516,20 +1688,65 @@ cluster_stats_messages_ping_received:181568
 
 ### meet
 
-클러스터로 묶기
+마스터 노드에 복제서버 추가하기
 
 ```sh
-$ redis-cli -h my-release-redis-cluster -a new1234 \
-    cluster meet my-release-redis-cluster-0-svc 6379
+# cluster 확인
+$ redis-cli -h my-release-redis-cluster -c -a new1234
+
+$ cluster nodes
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689392642726 2 connected 5461-10922
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 master - 0 1689392643000 7 connected 10923-16383
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 myself,master - 0 1689392642000 1 connected 0-5460
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 95acfe21a64250fa3359eb10e5f9cd23d38ec36c 0 1689392641721 7 connected
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 slave a2e3366d2310533a6cab5181afa197c93a5904a3 0 1689392643733 1 connected
+
+
+# pod 확인
+$ krs get pod -o wide
+NAME                            READY   STATUS    RESTARTS   AGE     IP            NODE        NOMINATED NODE   READINESS GATES
+python-7d59455985-scgxb         2/2     Running   0          5d22h   10.42.0.83    bastion03   <none>           <none>
+redis-client-69dcc9c76d-g6sms   1/1     Running   0          2d14h   10.42.0.133   bastion03   <none>           <none>
+my-release-redis-cluster-3      1/1     Running   0          99m     10.42.0.168   bastion03   <none>           <none>
+my-release-redis-cluster-0      1/1     Running   0          99m     10.42.0.169   bastion03   <none>           <none>
+my-release-redis-cluster-1      1/1     Running   0          99m     10.42.0.170   bastion03   <none>           <none>
+my-release-redis-cluster-4      1/1     Running   0          99m     10.42.0.172   bastion03   <none>           <none>
+my-release-redis-cluster-5      1/1     Running   0          99m     10.42.0.173   bastion03   <none>           <none>
+my-release-redis-cluster-2      0/1     Running   0          54m     10.42.0.174   bastion03   <none>           <none>
+
+
+# meet 명령 수행
+# 신규 node 에서 아래 명령 수행
+$ redis-cli -h my-release-redis-cluster -a $REDIS_PASSWORD CLUSTER meet 10.42.0.174 6379
+  
+  
+  
+```
 
 
 
 
-REPLICATE
 
-$ redis-cli  -a new1234 \
-    cluster replicate 63d3744de13f2898137d4b90c55cc3639cfebe49
+### replicas
 
+현재 node를 <node-id> 의 replca 로 설정한다.
+
+```sh
+# cluster 확인
+$ redis-cli -h my-release-redis-cluster -c -a new1234
+
+$ cluster nodes
+12a06ae7cd0ae7efd267814e28a83ff7824b8178 10.42.0.170:6379@16379 master - 0 1689391225000 2 connected 5461-10922
+95acfe21a64250fa3359eb10e5f9cd23d38ec36c 10.42.0.168:6379@16379 master - 0 1689391224000 7 connected 10923-16383
+a2e3366d2310533a6cab5181afa197c93a5904a3 10.42.0.169:6379@16379 myself,master - 0 1689391226000 1 connected 0-5460
+0da823d72181e684dfaf1b0c9cc9b58be96675ce 10.42.0.173:6379@16379 slave 95acfe21a64250fa3359eb10e5f9cd23d38ec36c 0 1689391226830 7 connected
+217cf57cc8a39cac12dd9d614317ad55fe4c57e4 10.42.0.171:6379@16379 master,fail - 1689390078333 0 0 connected
+b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 slave a2e3366d2310533a6cab5181afa197c93a5904a3 0 1689391224817 1 connected
+
+
+# 신규 node 에서 아래 명령 수행
+$ redis-cli -h localhost -c -a $REDIS_PASSWORD CLUSTER REPLICATE 12a06ae7cd0ae7efd267814e28a83ff7824b8178
+  
 
 
 ```
@@ -1541,6 +1758,8 @@ $ redis-cli  -a new1234 \
 
 
 ### addslots
+
+해시슬롯을 할당한다.  Cluster 구성의 node 수정하는데 유용하다.
 
 ```sh
 
@@ -1560,4 +1779,123 @@ $ redis-cli  -a new1234 \
 ```
 
 
+
+
+
+
+
+### slots
+
+cluster slots map 의 상세정보를 제공한다.
+
+이 명령은 클러스터 해시 슬롯을 실제 노드 네트워크 정보와 연결하는 맵을 검색(또는 리디렉션 수신 시 업데이트)하기 위해 Redis 클러스터 클라이언트 라이브러리 구현에서 사용하기에 적합하다.
+
+```sh
+
+$ cluster slots
+1) 1) (integer) 0
+   2) (integer) 5460
+   3) 1) "10.42.0.172"
+      2) (integer) 6379
+      3) "b109ed74a0e639d34067d1bf78a860931d0ee941"
+      4) (empty array)
+   4) 1) "10.42.0.175"
+      2) (integer) 6379
+      3) "ac04246dfccf850cbdf78565a52f131b1160233a"
+      4) (empty array)
+2) 1) (integer) 5461
+   2) (integer) 10922
+   3) 1) "10.42.0.170"
+      2) (integer) 6379
+      3) "12a06ae7cd0ae7efd267814e28a83ff7824b8178"
+      4) (empty array)
+   4) 1) "10.42.0.174"
+      2) (integer) 6379
+      3) "da5aaba2df35da46204ff96eb4be853ccd507606"
+      4) (empty array)
+3) 1) (integer) 10923
+   2) (integer) 16383
+   3) 1) "10.42.0.168"
+      2) (integer) 6379
+      3) "95acfe21a64250fa3359eb10e5f9cd23d38ec36c"
+      4) (empty array)
+   4) 1) "10.42.0.173"
+      2) (integer) 6379
+      3) "0da823d72181e684dfaf1b0c9cc9b58be96675ce"
+      4) (empty array)
+
+
+
+10.42.0.172:6379> get a
+-> Redirected to slot [15495] located at 10.42.0.168:6379
+"1"
+10.42.0.168:6379>
+10.42.0.168:6379>
+10.42.0.168:6379> get b
+-> Redirected to slot [3300] located at 10.42.0.172:6379
+"2"
+10.42.0.172:6379>
+10.42.0.172:6379>
+10.42.0.172:6379> get c
+-> Redirected to slot [7365] located at 10.42.0.170:6379
+"3"
+
+```
+
+
+
+
+
+
+
+### GETKEYSINSLOT 
+
+hash slot 에 저장된 key 의 배열을 리턴한다.
+
+```sh
+# CLUSTER GETKEYSINSLOT slot count
+
+# 샘플 
+# $ CLUSTER GETKEYSINSLOT 7000 3
+# 1) "key_39015"
+# 2) "key_89793"
+# 3) "key_92937"
+
+
+
+
+# 사전작업
+
+10.42.0.172:6379> get a
+-> Redirected to slot [15495] located at 10.42.0.168:6379
+"1"
+10.42.0.168:6379> get b
+-> Redirected to slot [3300] located at 10.42.0.172:6379
+"2"
+10.42.0.172:6379> get c
+-> Redirected to slot [7365] located at 10.42.0.170:6379
+"3"
+10.42.0.170:6379> get d
+-> Redirected to slot [11298] located at 10.42.0.168:6379
+"4"
+10.42.0.168:6379> get e
+(nil)
+10.42.0.168:6379> set d d
+OK
+10.42.0.168:6379> set f f
+-> Redirected to slot [3168] located at 10.42.0.172:6379
+OK
+10.42.0.172:6379> set g g
+-> Redirected to slot [7233] located at 10.42.0.170:6379
+OK
+
+
+
+
+
+
+$ CLUSTER GETKEYSINSLOT 7365 10
+
+
+```
 

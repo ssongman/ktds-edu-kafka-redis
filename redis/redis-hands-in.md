@@ -228,6 +228,55 @@ $ helm -n redis-system status my-release
 
 
 
+#### Cluster topology
+
+cluster 를 성공적으로 setup 하려면 최소 3개의 master node 를구성해야 한다.
+
+그러므로 전체 node 수는 아래와 같이 구성해야 한다.
+
+```
+nodes = numOfMasterNodes + numOfMasterNodes * replicas
+```
+
+따라서 설치 기본값인 `cluster.nodes=6`, `cluster.replicas=1` 의 의미는 master node 3개 ,  replica node 3개를 뜻한다.
+
+
+
+기본적으로 redis cluster 는 k8s cluster 외부에서 접근하지 못한다.  Cluster 외부에서 접근하기 위해서는 `cluster.externalAccess.enabled=true` 옵션을 줘야 한다. 6개의 LoadBalancer services 가 생기며 각각 한개의 node 로 접근가능한 구조로 셋팅된다.
+
+
+
+master 가 down 될때 slave 가 master 로 승격된다.  down된 master가 저장한 slots 은 slave 가 승격될때까지 unavailible 상태가 된다.
+
+만약 master 와 그의 slave 가 모두 down 될때는  그중 하나가 정상이 될때까지 cluster 가 down 된다.  
+
+따라서 이러한 downtime 을 줄이기 위해서는 replicas 수를 늘려서 셋팅하는 방법이 있을 수 있다.
+
+예를 다음과 같다.
+
+```
+cluster.nodes=9 ( 3 master plus 2 replicas for each master)
+cluster.replicas=2
+```
+
+위와 같이 설정하게 되면 3 개의 master node와 master 각각 2개의 slave 를 갖게 된다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### (2) pod/svc 확인
@@ -525,6 +574,14 @@ print(rc.cluster('slots'))
 (0, 5460): {'master': ('my-release-redis-cluster-0-svc', 6379), 'slaves': [('my-release-redis-cluster-4-svc', 6379)]}, 
 (5461, 10922): {'master': ('my-release-redis-cluster-1-svc', 6379), 'slaves': [('my-release-redis-cluster-5-svc', 6379)]}, 
 (10923, 16383): {'master': ('my-release-redis-cluster-2-svc', 6379), 'slaves': [('my-release-redis-cluster-3-svc', 6379)]}
+}
+'''
+
+'''
+{
+(0, 5460): {'master': ('10.42.0.172', 6379), 'slaves': [('10.42.0.175', 6379)]},
+(5461, 10922): {'master': ('10.42.0.170', 6379), 'slaves': [('10.42.0.174', 6379)]},
+(10923, 16383): {'master': ('10.42.0.168', 6379), 'slaves': [('10.42.0.173', 6379)]}
 }
 '''
 
