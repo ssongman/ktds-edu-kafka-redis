@@ -102,7 +102,7 @@ drwxrwxr-x 2 ktdseduuser ktdseduuser  4096 Jun 11 09:57 templates/
 
 
 
-### (1) helm install
+### (1) Helm Install
 
 ```sh
 $ cd  ~/temp/helm/charts/redis-cluster
@@ -218,6 +218,81 @@ my-release-redis-cluster            ClusterIP   10.43.13.151   <none>        637
 
 
 
+### (3) Helm Install with pv/pvc
+
+
+
+#### Install
+
+```sh
+
+## 실행 with persistence
+$ helm -n redis-system install my-release bitnami/redis-cluster \
+    --set password=new1234 \
+    --set persistence.enabled=true \
+    --set metrics.enabled=false \
+    --set cluster.nodes=6 \
+    --set cluster.replicas=1 
+    
+    
+    
+    
+    
+## 확인
+$ helm -n redis-system ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
+my-release      redis-system    1               2023-07-15 01:22:47.936886236 +0000 UTC deployed        redis-cluster-8.6.7     7.0.12
+
+
+## 삭제
+$ helm -n redis-system delete my-release
+
+
+```
+
+
+
+
+
+#### pv/pvc 확인
+
+일반적으로 storageClass 가 local 환경의 특정 node 에 hostpath로 pv를 생성한다.
+
+```yaml
+$ krs get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM                                                STORAGECLASS   REASON   AGE
+pvc-559bbd22-000a-4edb-a1e7-ed2bc2fc2b14   8Gi        RWO            Delete           Bound       redis-system/redis-data-my-release-redis-cluster-1   local-path              18m
+pvc-2c0938b9-cc18-4d09-88ef-cd78e9684fad   8Gi        RWO            Delete           Bound       redis-system/redis-data-my-release-redis-cluster-3   local-path              18m
+pvc-9b391772-e63d-479c-8d7c-0dcf052bcfcf   8Gi        RWO            Delete           Bound       redis-system/redis-data-my-release-redis-cluster-2   local-path              18m
+pvc-bd18aed3-ffcc-4b57-8634-50491b19741e   8Gi        RWO            Delete           Bound       redis-system/redis-data-my-release-redis-cluster-0   local-path              18m
+pvc-e0a98d7d-fb5c-499d-b5c7-e4d7126b7aec   8Gi        RWO            Delete           Bound       redis-system/redis-data-my-release-redis-cluster-4   local-path              18m
+pvc-adc273c4-8931-4024-8aad-0a0557d04af2   8Gi        RWO            Delete           Bound       redis-system/redis-data-my-release-redis-cluster-5   local-path              18m
+redis-pv-0                                 1Gi        RWO            Retain           Available                                                        manual                  2m22s
+
+
+$ krs get pvc
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+redis-data-my-release-redis-cluster-1   Bound    pvc-559bbd22-000a-4edb-a1e7-ed2bc2fc2b14   8Gi        RWO            local-path     18m
+redis-data-my-release-redis-cluster-3   Bound    pvc-2c0938b9-cc18-4d09-88ef-cd78e9684fad   8Gi        RWO            local-path     18m
+redis-data-my-release-redis-cluster-2   Bound    pvc-9b391772-e63d-479c-8d7c-0dcf052bcfcf   8Gi        RWO            local-path     18m
+redis-data-my-release-redis-cluster-0   Bound    pvc-bd18aed3-ffcc-4b57-8634-50491b19741e   8Gi        RWO            local-path     18m
+redis-data-my-release-redis-cluster-4   Bound    pvc-e0a98d7d-fb5c-499d-b5c7-e4d7126b7aec   8Gi        RWO            local-path     18m
+redis-data-my-release-redis-cluster-5   Bound    pvc-adc273c4-8931-4024-8aad-0a0557d04af2   8Gi        RWO            local-path     18m
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## 3) Internal Access
@@ -263,13 +338,12 @@ $ redis-cli -h my-release-redis-cluster -c -a new1234
 
 ## cluster node 를 확인
 my-release-redis-cluster:6379> cluster nodes
-
-7b8609f45e62d6060c3e34cd8bea661aeeed4e95 10.42.0.31:6379@16379 slave 89bd93950f1c63bce34d6639a056a6c59dd3bc6e 0 1686477766458 2 connected
-da8eb2aaedc3906d4a3b7d56cf174a4b7c33f857 10.42.0.28:6379@16379 master - 0 1686477765454 3 connected 10923-16383
-4a2e520ded34b4d21336089fe576c3c097eb97ea 10.42.0.27:6379@16379 myself,master - 0 1686477763000 1 connected 0-5460
-15e403bacd76ad0cff575a8e86d24f58e20183f5 10.42.0.30:6379@16379 slave 4a2e520ded34b4d21336089fe576c3c097eb97ea 0 1686477764000 1 connected
-89bd93950f1c63bce34d6639a056a6c59dd3bc6e 10.42.0.26:6379@16379 master - 0 1686477765000 2 connected 5461-10922
-be0633d61c1da6271ed43f404f77b55792150765 10.42.0.29:6379@16379 slave da8eb2aaedc3906d4a3b7d56cf174a4b7c33f857 0 1686477764450 3 connected
+e69395428d53c0994dcd5265ee5e9148e3b5cf4a 10.42.0.186:6379@16379 slave 3b517eae7922e1bca8e31d54ad5d200ba8fd1bc6 0 1689598090384 1 connected
+e724fccb95e0eccc1087ab5125f729c276a99b6a 10.42.0.181:6379@16379 master - 0 1689598089371 2 connected 5461-10922
+be02592f92c901525db78d86b1127bded541db55 10.42.0.182:6379@16379 slave 07d57665be56042b89006c11c71c5bec9e61f321 0 1689598088367 3 connected
+3b517eae7922e1bca8e31d54ad5d200ba8fd1bc6 10.42.0.185:6379@16379 myself,master - 0 1689598090000 1 connected 0-5460
+07d57665be56042b89006c11c71c5bec9e61f321 10.42.0.184:6379@16379 master - 0 1689598088000 3 connected 10923-16383
+2d39307a7a391bcc90446b1e0bc173e6852732ea 10.42.0.187:6379@16379 slave e724fccb95e0eccc1087ab5125f729c276a99b6a 0 1689598087361 2 connected
 
 ## master 3개, slave가 3개 사용하는 모습을 볼 수가 있다.
 
@@ -277,7 +351,6 @@ be0633d61c1da6271ed43f404f77b55792150765 10.42.0.29:6379@16379 slave da8eb2aaedc
 
 ## cluster info 확인
 my-release-redis-cluster:6379> cluster info
-
 cluster_state:ok
 cluster_slots_assigned:16384
 cluster_slots_ok:16384
@@ -287,13 +360,13 @@ cluster_known_nodes:6
 cluster_size:3
 cluster_current_epoch:6
 cluster_my_epoch:1
-cluster_stats_messages_ping_sent:236
-cluster_stats_messages_pong_sent:233
-cluster_stats_messages_sent:469
-cluster_stats_messages_ping_received:228
-cluster_stats_messages_pong_received:236
+cluster_stats_messages_ping_sent:1416
+cluster_stats_messages_pong_sent:1466
+cluster_stats_messages_sent:2882
+cluster_stats_messages_ping_received:1461
+cluster_stats_messages_pong_received:1416
 cluster_stats_messages_meet_received:5
-cluster_stats_messages_received:469
+cluster_stats_messages_received:2882
 total_cluster_links_buffer_limit_exceeded:0
 
 ## cluster state 가 OK 인 것을 확인할 수 있다.
@@ -519,6 +592,8 @@ for i in range(10000):
 # 테스트를 끝내려면 Ctrl + C 로 중지하자.
 
 ```
+
+
 
 
 
@@ -753,7 +828,23 @@ for i in range(10000):
     rc.get("c")
     
 
-# down 발생시점에서 약 20초정도 이후 정상작동한다.
+# 1) Test1
+# down 발생 - slave 가 master 로 승격되는 경우 (pvc가 없을경우)
+# 약 20초정도 이후 정상작동한다.
+
+
+
+# 2) Test2
+# down 발생
+# master node 가 cluster-node-timeout(기본, 15초) 동안 반응이 없으면 slave 가 master 로 승격된다.
+
+
+
+
+
+# 2) Test2
+# down 발생 - master가 그냥 재기동 된다면
+# 약 40초정도 이후 정상작동한다.
 
 ```
 
