@@ -1206,6 +1206,10 @@ b109ed74a0e639d34067d1bf78a860931d0ee941 10.42.0.172:6379@16379 myself,master - 
 
 https://redis.io/commands/cluster-addslots/
 
+https://medium.com/garimoo/redis-documentation-2-%EB%A0%88%EB%94%94%EC%8A%A4-%ED%81%B4%EB%9F%AC%EC%8A%A4%ED%84%B0-%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC-911ba145e63
+
+
+
 
 
 
@@ -2042,6 +2046,10 @@ Master Node FailOver시 일반적인 ConnectionFactory에서는  connection 이 
 
 ### (2) topologyRefresh sample
 
+링크 : https://blog.leocat.kr/notes/2022/04/15/lettuce-config-for-redis-cluster-topology-refresh
+
+
+
 topologyrefresh option 으로 재접속 시도
 
 ```java
@@ -2084,4 +2092,180 @@ topologyrefresh option 으로 재접속 시도
 		}		
     }    
 ```
+
+
+
+
+
+
+
+
+
+## 2) jib build
+
+
+
+### (1) docker build & push
+
+```sh
+
+
+# 도커 데몬 빌드
+$ mvn compile jib:dockerBuild
+
+
+# 도커 데몬 빌드
+$ mvn compile jib:dockerBuild  -Dimage=docker.io/ssongman/redis-sample:202307171134
+$ mvn compile jib:dockerBuild  -Dimage=docker.io/ssongman/redis-sample:202307171149
+$ mvn compile jib:dockerBuild  -Dimage=docker.io/ssongman/redis-sample:202307181207
+
+
+$ docker images | grep redis-sample
+ssongman/redis-sample                                     202307171134                                                                 a5e779f46a7
+ssongman/redis-sample                                     latest                                                                       d94b0d544a2
+
+
+$ docker push ssongman/redis-sample:latest
+$ docker push ssongman/redis-sample:202307171134
+$ docker push ssongman/redis-sample:202307171149
+$ docker push ssongman/redis-sample:202307181207
+
+
+
+```
+
+
+
+
+
+
+
+### (2) deploy
+
+```sh
+
+$ krs create deploy redis-sample --image=ssongman/redis-sample:latest
+
+# edit deploy
+$ krs edit deploy redis-sample
+
+
+```
+
+
+
+### (3) test
+
+```sh
+
+# health
+$ curl -X GET http://localhost:8082/health
+
+
+# set person aaaa
+$ curl -X POST http://localhost:8082/person \
+  -H "Content-Type: application/json" \
+  -d '{  
+  "id": "aaaa",
+  "name": "song",
+  "age": 20,
+  "createdAt": "2022-07-03T01:03:00"
+}'
+
+# set person bbbb
+$ curl -X POST http://localhost:8082/person \
+  -H "Content-Type: application/json" \
+  -d '{  
+  "id": "bbbb",
+  "name": "Park",
+  "age": 20,
+  "createdAt": "2022-07-03T01:03:00"
+}'
+
+
+# set person aaaa
+$ curl localhost:8082/person/aaaa
+
+# set person bbbb
+$ curl localhost:8082/person/bbbb
+
+
+
+# 1초에 한번씩
+$ while true; do curl localhost:8082/person/aaaa; echo; sleep 1;done
+
+```
+
+
+
+
+
+## 3) failover test
+
+1초에한번씩 get명령을 수행하면서 fail over 처리를 해보자.
+
+
+
+### (1) test1
+
+get 하고 있는 node 와 무관한 master node 를 죽였을때...
+
+정상이다.
+
+가끔씩 아래 로그가 보인다.
+
+```sh
+2023-07-17 15:22:44.393  WARN 1 --- [ioEventLoop-4-1] i.l.core.protocol.ConnectionWatchdog     : Cannot reconnect to [10.42.0 │
+│                                                                                                                               │
+│ io.netty.channel.AbstractChannel$AnnotatedNoRouteToHostException: No route to host: /10.42.0.188:6379                         │
+│ Caused by: java.net.NoRouteToHostException: No route to host                                                                  │
+│     at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method) ~[na:na]                                            │
+│     at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(Unknown Source) ~[na:na]                                          │
+│     at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:337) ~[netty-transport-4.1.78.Final │
+│     at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:334) ~[netty-transport │
+│     at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:710) ~[netty-transport-4.1.78.Final.jar:4.1.78. │
+│     at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:658) ~[netty-transport-4.1.78.Final.j │
+│     at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:584) ~[netty-transport-4.1.78.Final.jar:4.1.78 │
+│     at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:496) ~[netty-transport-4.1.78.Final.jar:4.1.78.Final]          │
+│     at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997) ~[netty-common-4.1.78.Fin │
+│     at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.1.78.Final.jar:4.1.78.Final │
+│     at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.1.78.Final.jar: │
+│     at java.base/java.lang.Thread.run(Unknown Source) ~[na:na] 
+```
+
+warn 이 보이는데 원인은???
+
+
+
+
+
+
+
+
+
+### (2) test2
+
+get 하고 있는 값이 존재하는 node 를 죽였을때
+
+결과
+
+지속적으로 reconnect 시도하면서 비정상적으로 작동한다.
+
+```sh
+                                                            │
+│ 2023-07-17 15:27:15.215  INFO 1 --- [xecutorLoop-1-1] i.l.core.protocol.ConnectionWatchdog     : Reconnecting, last destinati │
+│ 2023-07-17 15:27:18.281  WARN 1 --- [ioEventLoop-4-1] i.l.core.protocol.ConnectionWatchdog     : Cannot reconnect to [10.42.0 │
+│                                                                           
+
+
+
+```
+
+
+
+
+
+
+
+
 
