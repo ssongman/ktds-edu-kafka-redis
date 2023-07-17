@@ -604,6 +604,19 @@ rc.set('foo','bar')
 print(rc.get('foo'))
 key_list  = rc.keys("*")
 print(key_list)
+
+
+# 10000건을 1초에 한번씩 발송해보자.
+from time import sleep
+for i in range(10000):
+    print(i)
+    sleep(1)
+    rc.get("a")
+    rc.get("b")
+    rc.get("c")
+
+# 테스트를 끝내려면 Ctrl + C 로 중지하자.
+
 ```
 
 
