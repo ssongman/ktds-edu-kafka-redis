@@ -2168,6 +2168,10 @@ $ krs edit deploy redis-sample
 
 ```sh
 
+$ krs exec -it deploy/redis-sample -- bash
+
+
+
 # health
 $ curl -X GET http://localhost:8082/health
 
@@ -2193,10 +2197,10 @@ $ curl -X POST http://localhost:8082/person \
 }'
 
 
-# set person aaaa
+# get person aaaa
 $ curl localhost:8082/person/aaaa
 
-# set person bbbb
+# get person bbbb
 $ curl localhost:8082/person/bbbb
 
 
