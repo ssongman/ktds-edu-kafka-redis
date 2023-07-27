@@ -2000,6 +2000,16 @@ $ CLUSTER GETKEYSINSLOT 7365 10
 
 
 
+## 3) persistence
+
+
+
+
+
+
+
+
+
 # 4. Spring boot lettuce
 
 Spring  boot lettuce 확인 
