@@ -32,13 +32,13 @@ spec:
             nodePort: 32100
           brokers:
           - broker: 0
-            advertisedHost: my-cluster.kafka.127.0.0.1.nip.io    # 각자의 Node IP로 변경
+            advertisedHost: my-cluster.kafka.34.xx.xx.xx.nip.io    # 각자의 Node IP로 변경
             nodePort: 32200
           - broker: 1
-            advertisedHost: my-cluster.kafka.127.0.0.1.nip.io    # 각자의 Node IP로 변경
+            advertisedHost: my-cluster.kafka.34.xx.xx.xx.nip.io    # 각자의 Node IP로 변경
             nodePort: 32201
           - broker: 2
-            advertisedHost: my-cluster.kafka.127.0.0.1.nip.io    # 각자의 Node IP로 변경
+            advertisedHost: my-cluster.kafka.34.xx.xx.xx.nip.io    # 각자의 Node IP로 변경
             nodePort: 32202
       ## nodeport type 등록 -------
 
