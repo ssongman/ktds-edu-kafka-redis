@@ -11,7 +11,7 @@ spec:
   authorization:
     type: simple
     acls:
-      - operations: All
+      - operation: All
         resource:
           type: topic
           name: my
