@@ -6,7 +6,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "prometheus.kafka.35.209.207.26.nip.io"
+  - host: "grafana.kafka.35.209.207.26.nip.io"
     http:
       paths:
       - path: /
