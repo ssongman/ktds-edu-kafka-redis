@@ -82,12 +82,15 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 
 ### (1) STS 설치
 
-- 링크 : https://download.springsource.com/release/STS4/4.18.1.RELEASE/dist/e4.27/spring-tool-suite-4-4.18.1.RELEASE-e4.27.0-win32.win32.x86_64.self-extracting.jar
+- download 링크
+  - https://download.springsource.com/release/STS4/4.19.1.RELEASE/dist/e4.28/spring-tool-suite-4-4.19.1.RELEASE-e4.28.0-win32.win32.x86_64.self-extracting.jar
+
 - 설치
   - 적당한 위치에 설치하자.
 
 - Workspace 설정
   - 위치 : C:\workspace_STS4.18.1
+- [참고] STS링크 : https://spring.io/tools
 
 
 
@@ -95,7 +98,8 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 ### (2) [참고] java 설치
 
 - java 설치가 필요한 경우 아래 링크 참고
-  - 링크: https://javadl.oracle.com/webapps/download/AutoDL?BundleId=246442_2dee051a5d0647d5be72a7c0abff270e
+  - https://download.oracle.com/java/17/latest/jdk-17_windows-x64_bin.msi
+- [참고] oracle.com 링크 : https://www.oracle.com/java/technologies/downloads/#jdk17-windows
 
 
 
@@ -171,28 +175,28 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 
 개인별 VM Server 접속 환경 및 Kafka 실습을 위한 개인 Topic 정보를 확인하자.
 
-| 담당자 | VM Server | VM  Server IP  | kafka  Topic | kafka Group | 비고 |
-| :----: | :-------: | :------------: | :----------: | :---------: | :--: |
-| 송양xx | bastion01 |  34.xx.xx.xx   | edu-topic01  | edu-group01 |      |
-|        | bastion02 |                | edu-topic02  | edu-group02 |      |
-|        | bastion03 |                | edu-topic03  | edu-group03 |      |
-|        | bastion04 |                | edu-topic04  | edu-group04 |      |
-|        | bastion05 |                | edu-topic05  | edu-group05 |      |
-|        | bastion06 |                | edu-topic06  | edu-group06 |      |
-|        | bastion07 |                | edu-topic07  | edu-group07 |      |
-|        | bastion08 |                | edu-topic08  | edu-group08 |      |
-|        | bastion09 |                | edu-topic09  | edu-group09 |      |
-|        | bastion10 |                | edu-topic10  | edu-group10 |      |
-|        | bastion11 |                | edu-topic11  | edu-group11 |      |
-|        | bastion12 |                | edu-topic12  | edu-group12 |      |
-|        | bastion13 |                | edu-topic13  | edu-group13 |      |
-|        | bastion14 |                | edu-topic14  | edu-group14 |      |
-|        | bastion15 |                | edu-topic15  | edu-group15 |      |
-|        | bastion16 |                | edu-topic16  | edu-group16 |      |
-|        | bastion17 |                | edu-topic17  | edu-group17 |      |
-|        |           |                | edu-topic18  | edu-group18 |      |
-|        |           |                | edu-topic19  | edu-group19 |      |
-|        |           |                | edu-topic20  | edu-group20 |      |
+| 담당자 | VM Server | VM  Server IP | kafka  Topic | kafka Group | 비고 |
+| :----: | :-------: | :-----------: | :----------: | :---------: | :--: |
+| 송양xx | bastion01 |  34.xx.xx.xx  | edu-topic01  | edu-group01 |      |
+|        | bastion02 |               | edu-topic02  | edu-group02 |      |
+|        | bastion03 |               | edu-topic03  | edu-group03 |      |
+|        | bastion04 |               | edu-topic04  | edu-group04 |      |
+|        | bastion05 |               | edu-topic05  | edu-group05 |      |
+|        | bastion06 |               | edu-topic06  | edu-group06 |      |
+|        | bastion07 |               | edu-topic07  | edu-group07 |      |
+|        | bastion08 |               | edu-topic08  | edu-group08 |      |
+|        | bastion09 |               | edu-topic09  | edu-group09 |      |
+|        | bastion10 |               | edu-topic10  | edu-group10 |      |
+|        | bastion11 |               | edu-topic11  | edu-group11 |      |
+|        | bastion12 |               | edu-topic12  | edu-group12 |      |
+|        | bastion13 |               | edu-topic13  | edu-group13 |      |
+|        | bastion14 |               | edu-topic14  | edu-group14 |      |
+|        | bastion15 |               | edu-topic15  | edu-group15 |      |
+|        | bastion16 |               | edu-topic16  | edu-group16 |      |
+|        | bastion17 |               | edu-topic17  | edu-group17 |      |
+|        | bastion18 |               | edu-topic18  | edu-group18 |      |
+|        | bastion19 |               | edu-topic19  | edu-group19 |      |
+|        | bastion20 |               | edu-topic20  | edu-group20 |      |
 
 
 

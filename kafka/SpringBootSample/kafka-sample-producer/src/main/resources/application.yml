@@ -13,7 +13,7 @@ spring:
     properties:
       sasl:
         jaas:
-          config: org.apache.kafka.common.security.scram.ScramLoginModule required username="edu-user" password="iUfOLiK9LM4QxwTMYnjOQHrG0gJiwQpa";
+          config: org.apache.kafka.common.security.scram.ScramLoginModule required username="edu-user" password="nxRcaiHkAOi9YhaFcm3zn6STlWyqivCf";
         mechanism: SCRAM-SHA-512
 
 topic:
