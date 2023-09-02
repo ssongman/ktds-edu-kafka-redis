@@ -11,7 +11,7 @@ metadata:
     heritage: Helm
     release: prometheus
 spec:
-  host: prometheus-kafka.apps.211-34-231-82.nip.io
+  host: prometheus.kafka.35.209.207.26.nip.io
   to:
     kind: Service
     name: prometheus-server

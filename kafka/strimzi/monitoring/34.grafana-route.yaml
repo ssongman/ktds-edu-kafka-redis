@@ -6,7 +6,7 @@ metadata:
   labels:
     app: strimzi
 spec:
-  host: grafana-kafka.apps.211-34-231-82.nip.io
+  host: prometheus.kafka.35.209.207.26.nip.io
   to:
     kind: Service
     name: grafana
