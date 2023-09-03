@@ -33,9 +33,11 @@ $ kubectl create ns redis-system
 
 ### (1) [참고] Helm Architecture
 
-- helm chart 의 필요성
 
-일반적으로 Kubernetes 에 서비스를 배포하기 위해 준비되는 Manifest 파일은 정적인 형태이다. 따라서 데이터를 수정하기 위해선 파일 자체를 수정해야 한다.  잘 관리를 한다면야 큰 어려움은 없겠지만, 문제는 CI/CD 등 자동화된 파이프라인을 구축해서 애플리케이션 라이프사이클을 관리할 때 발생한다.  
+
+#### helm chart 의 필요성
+
+일반적으로 Kubernetes 에 서비스를 배포하기 위해 준비되는 Manifest 파일은 정적인 형태이다. 따라서 데이터를 수정하기 위해선 파일 자체를 수정해야 한다.  잘 관리를 한다면 큰 어려움은 없겠지만, 문제는 CI/CD 등 자동화된 파이프라인을 구축해서 애플리케이션 라이프사이클을 관리할 때 발생한다.  
 
 보통 애플리케이션 이미지를 새로 빌드하게 되면, 빌드 넘버가 변경된다. 이렇게 되면 새로운 이미지를 사용하기 위해 Kubernetes Manifest의 Image도 변경되어야 한다.  하지만 Kubernetes Manifest를 살펴보면, 이를 변경하기 쉽지 않다. Image Tag가 별도로 존재하지 않고 Image 이름에 붙어있기 때문입니다. 이를 자동화 파이프라인에서 변경하려면, sed 명령어를 쓰는 등의 힘든 작업을 해야 한다.
 
@@ -43,15 +45,115 @@ Image Tag는 굉장히 단적인 예제이다.  이 외에 도 Configmap 등 배
 
 
 
+#### Helm Architecture
+
 ![helm-architecure](redis-hands-in.assets/helm-architecure.png)
 
 
 
-### (2) helm Client 설치
+### (2) [참고] helm client download
 
-Bastion Server 에는 Helm 이 설치되어 있다.
+helm client 를 local 에 설치해 보자.
 
-helm client 설치에 대한 내용은 `cloud-setup.md` 파일에서 `helm install` 부분을 참고하자.
+개인PC 의 WSL Termimal 에서 아래 작업을 수행하자.
+
+```sh
+# root 권한으로 수행
+$ su
+
+
+## 임시 디렉토리를 하나 만들자.
+$ mkdir -p ~/helm/
+$ cd ~/helm/
+
+# 다운로드
+$ wget https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz
+
+# 압축해지
+$ tar -zxvf helm-v3.12.0-linux-amd64.tar.gz
+
+# 확인
+$ ll linux-amd64/helm
+-rwxr-xr-x 1 1001 docker 50597888 May 11 01:35 linux-amd64/helm*
+
+# move
+$ mv linux-amd64/helm /usr/local/bin/helm
+
+# 확인
+$ ll /usr/local/bin/helm*
+-rwxr-xr-x 1 1001 docker 50597888 May 11 01:35 /usr/local/bin/helm*
+
+
+# 일반유저로 복귀
+$ exit
+
+
+# 확인
+$ helm version
+version.BuildInfo{Version:"v3.12.0", GitCommit:"c9f554d75773799f72ceef38c51210f1842a1dea", GitTreeState:"clean", GoVersion:"go1.20.3"}
+
+
+$ helm -n user02 ls
+NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+
+```
+
+
+
+### (3) [참고] bitnami repo 추가
+
+- 유명한 charts 들이모여있는 bitnami repo 를 추가후 nginx 를 배포해 보자.
+
+```sh
+# test# add stable repo
+$ helm repo ls
+
+# test# add stable repo
+$ helm repo add bitnami https://charts.bitnami.com/bitnami
+
+$ helm search repo bitnami
+# bitnami 가 만든 다양한 오픈소스 샘플을 볼 수 있다.
+NAME                                            CHART VERSION   APP VERSION     DESCRIPTION
+bitnami/airflow                                 14.1.3          2.6.0           Apache Airflow is a tool to express and execute...
+bitnami/apache                                  9.5.3           2.4.57          Apache HTTP Server is an open-source HTTP serve...
+bitnami/appsmith                                0.3.2           1.9.19          Appsmith is an open source platform for buildin...
+bitnami/argo-cd                                 4.7.2           2.6.7           Argo CD is a continuous delivery tool for Kuber...
+bitnami/argo-workflows                          5.2.1           3.4.7           Argo Workflows is meant to orchestrate Kubernet...
+bitnami/aspnet-core                             4.1.1           7.0.5           ASP.NET Core is an open-source framework for we...
+bitnami/cassandra                               10.2.2          4.1.1           Apache Cassandra is an open source distributed ...
+...
+
+# 설치테스트(샘플: nginx)
+$ helm -n user02 install nginx bitnami/nginx
+
+$ ku get all
+NAME                         READY   STATUS              RESTARTS   AGE
+pod/nginx-68c669f78d-wgnp4   0/1     ContainerCreating   0          10s
+
+NAME            TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+service/nginx   LoadBalancer   10.43.197.4   <pending>     80:32754/TCP   10s
+
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/nginx   0/1     1            0           10s
+
+NAME                               DESIRED   CURRENT   READY   AGE
+replicaset.apps/nginx-68c669f78d   1         1         0       10s
+
+# 간단하게 nginx 에 관련된 deployment / service / pod 들이 설치되었다.
+
+
+# 설치 삭제
+$ helm -n user02 delete nginx
+
+$ ku get all
+No resources found in user02 namespace.
+```
+
+
+
+
+
+
 
 
 
@@ -78,6 +180,13 @@ $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo list
 NAME    URL
 bitnami https://charts.bitnami.com/bitnami
+
+# helm repo update
+$ helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+
 ```
 
 
@@ -88,14 +197,15 @@ bitnami https://charts.bitnami.com/bitnami
 
 ```sh
 $ helm search repo redis
-NAME                                            CHART VERSION   APP VERSION     DESCRIPTION
-bitnami/redis                                   17.11.2         7.0.11          Redis(R) is an open source, advanced key-value ...
-bitnami/redis-cluster                           8.6.1           7.0.11          Redis(R) is an open source, scalable, distribut...
+NAME                    CHART VERSION   APP VERSION     DESCRIPTION
+bitnami/redis           18.0.1          7.2.0           Redis(R) is an open source, advanced key-value ...
+bitnami/redis-cluster   9.0.1           7.2.0           Redis(R) is an open source, scalable, distribut...
+
 
 
 ```
 
-우리가 사용할 redis-cluster 버젼은 chart version 8.6.1( app version: 7.0.11) 이다.
+우리가 사용할 redis-cluster 버젼은 chart version 9.0.1( app version: 7.2.0) 이다.
 
 
 
@@ -111,24 +221,25 @@ $ mkdir -p ~/temp/helm/charts
 $ helm fetch bitnami/redis-cluster
 
 $ ll
--rw-r--r-- 1 ktdseduuser ktdseduuser 105787 Jul  9 06:39 redis-cluster-8.6.6.tgz
+-rw-r--r-- 1 ktdseduuser ktdseduuser 106171 Sep  3 03:50 redis-cluster-9.0.1.tgz
 
 
 
-$ tar -xzvf redis-cluster-8.6.6.tgz
+
+
+$ tar -xzvf redis-cluster-9.0.1.tgz
 ...
 
 $ cd redis-cluster
 
 $ ls -ltr
--rw-r--r-- 1 ktdseduuser ktdseduuser   333 May 21 17:57 .helmignore
--rw-r--r-- 1 ktdseduuser ktdseduuser   225 May 21 17:57 Chart.lock
--rw-r--r-- 1 ktdseduuser ktdseduuser   747 May 21 17:57 Chart.yaml
--rw-r--r-- 1 ktdseduuser ktdseduuser 75124 May 21 17:57 README.md
-drwxrwxr-x 3 ktdseduuser ktdseduuser  4096 Jun 11 09:57 charts/
-drwxrwxr-x 2 ktdseduuser ktdseduuser  4096 Jun 11 09:57 img/
-drwxrwxr-x 2 ktdseduuser ktdseduuser  4096 Jun 11 09:57 templates/
--rw-r--r-- 1 ktdseduuser ktdseduuser 42471 May 21 17:57 values.yaml
+-rw-r--r-- 1 ktdseduuser ktdseduuser 43341 Aug 28 17:11 values.yaml
+-rw-r--r-- 1 ktdseduuser ktdseduuser 76102 Aug 28 17:11 README.md
+-rw-r--r-- 1 ktdseduuser ktdseduuser  1019 Aug 28 17:11 Chart.yaml
+-rw-r--r-- 1 ktdseduuser ktdseduuser   227 Aug 28 17:11 Chart.lock
+drwxrwxr-x 2 ktdseduuser ktdseduuser  4096 Sep  3 03:51 templates
+drwxrwxr-x 2 ktdseduuser ktdseduuser  4096 Sep  3 03:51 img
+drwxrwxr-x 3 ktdseduuser ktdseduuser  4096 Sep  3 03:51 charts
 
 
 ```
@@ -172,7 +283,7 @@ $ helm -n redis-system install my-release . \
     --set cluster.externalAccess.service.loadBalancerIP[5]=my-release-redis-cluster-5-svc \
     
 
-## 실행
+## redis-cluster 설치
 $ helm -n redis-system install my-release . \
     --set password=new1234 \
     --set persistence.enabled=false \
@@ -217,10 +328,11 @@ redis-cli -c -h my-release-redis-cluster -a $REDIS_PASSWORD
 ## 확인
 $ helm -n redis-system ls
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
-my-release      redis-system    1               2023-06-11 09:58:55.994892092 +0000 UTC deployed        redis-cluster-8.6.2     7.0.11
+my-release      redis-system    1               2023-09-03 03:53:28.268329606 +0000 UTC deployed        redis-cluster-9.0.1     7.2.0
 
 
 
+## 확인
 $ helm -n redis-system status my-release
 
 
@@ -235,14 +347,10 @@ cluster 를 성공적으로 setup 하려면 최소 3개의 master node 를구성
 그러므로 전체 node 수는 아래와 같이 구성해야 한다.
 
 ```
-nodes = numOfMasterNodes + numOfMasterNodes * replicas
+nodes = numOfMasterNodes + (numOfMasterNodes * replicas)
 ```
 
 따라서 설치 기본값인 `cluster.nodes=6`, `cluster.replicas=1` 의 의미는 master node 3개 ,  replica node 3개를 뜻한다.
-
-
-
-기본적으로 redis cluster 는 k8s cluster 외부에서 접근하지 못한다.  Cluster 외부에서 접근하기 위해서는 `cluster.externalAccess.enabled=true` 옵션을 줘야 한다. 6개의 LoadBalancer services 가 생기며 각각 한개의 node 로 접근가능한 구조로 셋팅된다.
 
 
 
@@ -263,15 +371,9 @@ cluster.replicas=2
 
 
 
+#### externalAccess 설정
 
-
-
-
-
-
-
-
-
+기본적으로 redis cluster 는 k8s cluster 외부에서 접근하지 못한다.  Cluster 외부에서 접근하기 위해서는 `cluster.externalAccess.enabled=true` 옵션을 줘야 한다. 6개의 LoadBalancer services 가 생기며 각각 한개의 node 로 접근가능한 구조로 셋팅된다.
 
 
 
@@ -320,7 +422,7 @@ redis client를 cluster 내부에서 실행후 접근하는 방법을 알아보�
 
 ```sh
 ## redis-client 용도로 deployment 를 실행한다.
-$ kubectl -n redis-system create deploy redis-client --image=docker.io/bitnami/redis-cluster:6.2.7-debian-11-r3 -- sleep 365d
+$ kubectl -n redis-system create deploy redis-client --image=docker.io/redis:7.2 -- sleep 365d
 deployment.apps/redis-client created
 
 
@@ -335,7 +437,7 @@ redis-client-7cdd56bb6c-njjls   1/1     Running   0          5s     <--- redis c
 
 ## redis-client pod 내부로 접근한다.
 $ kubectl -n redis-system exec -it deploy/redis-client -- bash
-I have no name!@redis-client-69dcc9c76d-kc8r9:/$    # <-- 이런 Prompt가 나오면 정상
+I have no name!@redis-client-69dcc9c76d-kc8r9:/$            # <-- 이런 Prompt가 나오면 정상
 
 ```
 
@@ -496,15 +598,11 @@ $ pip install redis-py-cluster
 
 Collecting redis-py-cluster
   Downloading redis_py_cluster-2.1.3-py2.py3-none-any.whl (42 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 5.5 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 2.8 MB/s eta 0:00:00
 Collecting redis<4.0.0,>=3.0.0
   Downloading redis-3.5.3-py2.py3-none-any.whl (72 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.1/72.1 kB 10.8 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.1/72.1 kB 6.9 MB/s eta 0:00:00
 Installing collected packages: redis, redis-py-cluster
-  Attempting uninstall: redis
-    Found existing installation: redis 4.6.0
-    Uninstalling redis-4.6.0:
-      Successfully uninstalled redis-4.6.0
 Successfully installed redis-3.5.3 redis-py-cluster-2.1.3
 
 
@@ -519,12 +617,13 @@ Successfully installed redis-3.5.3 redis-py-cluster-2.1.3
 # nc 명령으로 접근가능여부를 확인할 수 있다.
 
 $ apt update
-$ apt install netcat
+  apt install netcat-openbsd
 
 $ nc -zv my-release-redis-cluster.redis-system.svc 6379
 
 Connection to my-release-redis-cluster.redis-system.svc (10.43.47.183) 6379 port [tcp/redis] succeeded!
 
+# externalAccess 방식으로 설치했을 경우
 $ nc -zv my-release-redis-cluster-0-svc.redis-system.svc 6379
 $ nc -zv my-release-redis-cluster-1-svc.redis-system.svc 6379
 $ nc -zv my-release-redis-cluster-2-svc.redis-system.svc 6379
@@ -544,11 +643,11 @@ consumer 실행을 위해서 python cli 환경으로 들어가자.
 ```sh
 # python pod 내부에서
 $ python
-
-Python 3.9.13 (main, May 28 2022, 13:56:03)
-[GCC 10.2.1 20210110] on linux
+Python 3.9.18 (main, Aug 26 2023, 01:24:18)
+[GCC 12.2.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>>
+
 
 ```
 
@@ -558,8 +657,6 @@ CLI 환경에서 아래  Python 명령을 하나씩 실행해 보자.
 
 ```python
 from rediscluster import RedisCluster
-
-
 
 startup_nodes = [{"host":"my-release-redis-cluster", "port":"6379"}]
 rc = RedisCluster(startup_nodes=startup_nodes, 
@@ -571,19 +668,21 @@ print(rc.cluster('slots'))
 
 '''
 {
+(0, 5460): {'master': ('10.42.0.172', 6379), 'slaves': [('10.42.0.175', 6379)]},
+(5461, 10922): {'master': ('10.42.0.170', 6379), 'slaves': [('10.42.0.174', 6379)]},
+(10923, 16383): {'master': ('10.42.0.168', 6379), 'slaves': [('10.42.0.173', 6379)]}
+}
+'''
+
+'''
+externalAccess 일 경우
+{
 (0, 5460): {'master': ('my-release-redis-cluster-0-svc', 6379), 'slaves': [('my-release-redis-cluster-4-svc', 6379)]}, 
 (5461, 10922): {'master': ('my-release-redis-cluster-1-svc', 6379), 'slaves': [('my-release-redis-cluster-5-svc', 6379)]}, 
 (10923, 16383): {'master': ('my-release-redis-cluster-2-svc', 6379), 'slaves': [('my-release-redis-cluster-3-svc', 6379)]}
 }
 '''
 
-'''
-{
-(0, 5460): {'master': ('10.42.0.172', 6379), 'slaves': [('10.42.0.175', 6379)]},
-(5461, 10922): {'master': ('10.42.0.170', 6379), 'slaves': [('10.42.0.174', 6379)]},
-(10923, 16383): {'master': ('10.42.0.168', 6379), 'slaves': [('10.42.0.173', 6379)]}
-}
-'''
 
 
 # redis set
@@ -606,7 +705,7 @@ key_list  = rc.keys("*")
 print(key_list)
 
 
-# 10000건을 1초에 한번씩 발송해보자.
+# 10000건을 1초에 한번씩 읽어 보자.
 from time import sleep
 for i in range(10000):
     print(i)
@@ -629,19 +728,19 @@ for i in range(10000):
 
 Redis Cluster 는 K8s 내부에서만 사용가능한 주소체계로 redirect 되므로 k8s 외부에서는 접근이 불가능하다.
 
-### 
+다만, 멀티클러스터간 통신은 istio 의 MultiCluster 기능을 이용하여 접근이 가능하다.
 
 
 
 
 
-## 2.5 결론
+### external Access 의 한계
 
-- External (Cluster 외부) 에서 access 하기 위해서 node port 를 이용해야 함
+- Cluster 외부 에서 access 하기 위해서 node port 를 이용해야 함
 
 - 하지만 Redis Cluster 의 경우 접근해야 할 Node 가 두개 이상이며 데이터가 저장된 위치를 찾아 redirect 됨
 
-- 이때 redirect 가 정확히 이루어지려면 Client 가 인식가능한 Node 주소를 알아야 함
+- 이때 redirect가 정확히 이루어지려면 Client 가 인식가능한 Node 주소를 알아야 함
 
 - 하지만 Redis Cluster 는 원격지 Client 가 인식가능한 Node 들의 DNS 제공을 지원하지 않음
 
@@ -653,7 +752,7 @@ Redis Cluster 는 K8s 내부에서만 사용가능한 주소체계로 redirect �
 
 
 
-## 2.6 Clean Up
+## 2.5 Clean Up
 
 ```sh
 
@@ -665,11 +764,13 @@ $ helm -n redis-system ls
 
 # 2) helm chart 삭제
 $ rm -rf ~/temp/helm/charts/redis-cluster/
-$ rm -rf ~/temp/helm/charts/redis-cluster-8.6.2.tgz
 
 
 ## 3) redis-client 삭제
-$ kubectl -n redis-system delete deploy/redis-client
+#$ kubectl -n redis-system delete deploy/redis-client
+#$ kubectl -n redis-system delete deploy/python
+
+# 확인
 $ kubectl -n redis-system get all
 
 
@@ -700,12 +801,13 @@ Redis-Cluster 는 Local 에서 접속 시도할때는 Redirect 가 불가능하�
 ```sh
 $ helm search repo redis
 NAME                    CHART VERSION   APP VERSION     DESCRIPTION
-bitnami/redis           17.11.3         7.0.11          Redis(R) is an open source, advanced key-value ...
-bitnami/redis-cluster   8.6.2           7.0.11          Redis(R) is an open source, scalable, distribut...
+bitnami/redis           18.0.1          7.2.0           Redis(R) is an open source, advanced key-value ...
+bitnami/redis-cluster   9.0.1           7.2.0           Redis(R) is an open source, scalable, distribut...
+
 
 ```
 
-bitnami/redis chart 를 이용할 것이다.
+bitnami/redis chart (18.0.1) 를 이용할 것이다.
 
 
 
@@ -743,61 +845,22 @@ $ helm -n redis-system install my-release bitnami/redis \
 
 ##
 NAME: my-release
-LAST DEPLOYED: Sun Jun 11 10:16:14 2023
+LAST DEPLOYED: Sun Sep  3 04:30:16 2023
 NAMESPACE: redis-system
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 NOTES:
 CHART NAME: redis
-CHART VERSION: 17.11.3
-APP VERSION: 7.0.11
-
-** Please be patient while the chart is being deployed **
-
-Redis&reg; can be accessed on the following DNS names from within your cluster:
-
-    my-release-redis-master.redis-system.svc.cluster.local for read/write operations (port 6379)
-    my-release-redis-replicas.redis-system.svc.cluster.local for read-only operations (port 6379)
-
-
-
-To get your password run:
-
-    export REDIS_PASSWORD=$(kubectl get secret --namespace redis-system my-release-redis -o jsonpath="{.data.redis-password}" | base64 -d)
-
-To connect to your Redis&reg; server:
-
-1. Run a Redis&reg; pod that you can use as a client:
-
-   kubectl run --namespace redis-system redis-client --restart='Never'  --env REDIS_PASSWORD=$REDIS_PASSWORD  --image docker.io/bitnami/redis:7.0.11-debian-11-r12 --command -- sleep infinity
-
-   Use the following command to attach to the pod:
-
-   kubectl exec --tty -i redis-client \
-   --namespace redis-system -- bash
-
-2. Connect using the Redis&reg; CLI:
-   REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h my-release-redis-master
-   REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h my-release-redis-replicas
-
-To connect to your database from outside the cluster execute the following commands:
-
-    export NODE_IP=$(kubectl get nodes --namespace redis-system -o jsonpath="{.items[0].status.addresses[0].address}")
-    export NODE_PORT=$(kubectl get --namespace redis-system -o jsonpath="{.spec.ports[0].nodePort}" services my-release-redis-master)
-    REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h $NODE_IP -p $NODE_PORT
-
-
-
-
+CHART VERSION: 18.0.1
+APP VERSION: 7.2.0
 
 
 
 
 # 설치목록 확인
-$ helm -n redis-system ls
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-my-release      redis-system    1               2023-06-11 10:16:14.122487498 +0000 UTC deployed        redis-17.11.3   7.0.11
+my-release      redis-system    1               2023-09-03 04:30:16.137087915 +0000 UTC deployed        redis-18.0.1    7.2.0
 
 
 
@@ -807,8 +870,6 @@ $ helm -n redis-system get all my-release
 
 
 ```
-
-my-release-redis-master 는 read/write 용도로 사용되며 my-release-redis-replicas 는 read-only 용도로 사용된다.
 
 
 
@@ -904,6 +965,7 @@ my-release-redis-replicas   NodePort    10.103.228.149   <none>        6379:3231
 
 ```
 
+- my-release-redis-master 는 read/write 용도로 사용되며 my-release-redis-replicas 는 read-only 용도로 사용되기도 한다.
 - master / replicas service 는 nodeport 로 접근한다.
 
 
@@ -921,9 +983,10 @@ redis client를 cluster 내부에서 실행후 접근하는 방법을 알아보�
 ```sh
 $ kubectl -n redis-system get svc
 NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-my-release-redis-headless   ClusterIP   None            <none>        6379/TCP         7m17s
-my-release-redis-replicas   NodePort    10.43.232.115   <none>        6379:32310/TCP   7m17s
-my-release-redis-master     NodePort    10.43.160.148   <none>        6379:32300/TCP   7m17s
+my-release-redis-headless   ClusterIP   None            <none>        6379/TCP         2m41s
+my-release-redis-replicas   NodePort    10.43.130.132   <none>        6379:32310/TCP   2m41s
+my-release-redis-master     NodePort    10.43.104.60    <none>        6379:32300/TCP   2m41s
+
 
 
 $ kubectl -n redis-system  get pod
@@ -950,10 +1013,10 @@ my-release-redis-replicas-2   1/1     Running   0          12m
 먼저 아래와 같이 동일한 Namespace 에 redis-client 를 실행한다.
 
 ```sh
-## redis-client 용도로 deployment 를 실행한다.
-$ kubectl -n redis-system create deploy redis-client --image=docker.io/bitnami/redis-cluster:6.2.7-debian-11-r3 -- sleep 365d
-deployment.apps/redis-client created
 
+## redis-client 용도로 deployment 를 실행한다.
+$ kubectl -n redis-system create deploy redis-client --image=docker.io/redis:7.2 -- sleep 365d
+deployment.apps/redis-client created
 
 ## redis client pod 확인
 $ kubectl -n redis-system get pod
@@ -984,12 +1047,12 @@ $ redis-cli -h my-release-redis-master -a new1234
 # redis info 
 $ my-release-redis-master:6379> info
 # Server
-redis_version:7.0.11
+redis_version:7.2.0
 redis_git_sha1:00000000
 redis_git_dirty:0
-redis_build_id:a34ca35dd6ccc3a6
+redis_build_id:2134749ca3475304
 redis_mode:standalone
-os:Linux 5.19.0-1022-gcp x86_64
+os:Linux 5.19.0-1025-gcp x86_64
 arch_bits:64
 monotonic_clock:POSIX clock_gettime
 multiplexing_api:epoll
@@ -997,18 +1060,18 @@ atomicvar_api:c11-builtin
 gcc_version:10.2.1
 process_id:1
 process_supervised:no
-run_id:956136515f55cbe85554aaa17d949539d475b8eb
+run_id:2df8ed0436407ea383f12ab89973e32d8d71c388
 tcp_port:6379
-server_time_usec:1686479219566383
-uptime_in_seconds:638
+server_time_usec:1693715749028739
+uptime_in_seconds:328
 uptime_in_days:0
 hz:10
 configured_hz:10
-lru_clock:8757619
+lru_clock:15994148
 executable:/redis-server
 config_file:
 io_threads_active:0
-...
+listener0:name=tcp,bind=*,bind=-::*,port=6379
 ...
 
 ```
@@ -1110,16 +1173,12 @@ kafka 에 접근하기 위해서 kafka-python 을 설치해야 한다.
 $ pip install redis
 
 Collecting redis
-  Downloading redis-4.6.0-py3-none-any.whl (241 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 241.1/241.1 kB 24.0 MB/s eta 0:00:00
+  Downloading redis-5.0.0-py3-none-any.whl (250 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 250.1/250.1 kB 6.6 MB/s eta 0:00:00
 Collecting async-timeout>=4.0.2
-  Downloading async_timeout-4.0.2-py3-none-any.whl (5.8 kB)
+  Downloading async_timeout-4.0.3-py3-none-any.whl (5.7 kB)
 Installing collected packages: async-timeout, redis
-Successfully installed async-timeout-4.0.2 redis-4.6.0
-WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
-
-[notice] A new release of pip is available: 23.0.1 -> 23.1.2
-[notice] To update, run: pip install --upgrade pip
+Successfully installed async-timeout-4.0.3 redis-5.0.0
 
 
 ```
@@ -1133,12 +1192,11 @@ WARNING: Running pip as the 'root' user can result in broken permissions and con
 # nc 명령으로 접근가능여부를 확인할 수 있다.
 
 $ apt update
-$ apt install netcat
+  apt install netcat-openbsd
 
 $ nc -zv my-release-redis-master.redis-system.svc 6379
 
-Connection to my-release-redis-master.redis-system.svc (10.43.83.105) 6379 port [tcp/redis] succeeded!
-
+Connection to my-release-redis-master.redis-system.svc (10.43.104.60) 6379 port [tcp/redis] succeeded!
 
 ```
 
@@ -1152,10 +1210,11 @@ consumer 실행을 위해서 python cli 환경으로 들어가자.
 # python pod 내부에서
 $ python
 
-Python 3.9.13 (main, May 28 2022, 13:56:03)
-[GCC 10.2.1 20210110] on linux
+Python 3.9.18 (main, Aug 26 2023, 01:24:18)
+[GCC 12.2.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>>
+
 
 ```
 
@@ -1168,12 +1227,15 @@ import redis
 
 # redis 연결
 rd = redis.Redis(host='my-release-redis-master', port=6379, db=0, password="new1234")
-#rd = redis.StrictRedis(host='my-release-redis-master', port=6379, db=0, password="new1234")
-#rd = redis.Redis(host='localhost', port=6379, decode_responses=True)
-#rc = RedisCluster(host='my-release-redis-cluster', port=6379)
+
 
 '''
-r = redis.Redis(
+# [참고] sample connection
+rd = redis.StrictRedis(host='my-release-redis-master', port=6379, db=0, password="new1234")
+rd = redis.Redis(host='localhost', port=6379, decode_responses=True)
+rc = RedisCluster(host='my-release-redis-cluster', port=6379)
+
+rd = redis.Redis(
     host="my-redis.cloud.redislabs.com", port=6379,
     username="default", # use your Redis user. More info https://redis.io/docs/management/security/acl/
     password="secret", # use your Redis password
@@ -1183,6 +1245,8 @@ r = redis.Redis(
     ssl_ca_certs="./redis_ca.pem",
 )
 '''
+
+
 
 # redis set
 rd.set("a", "python1")
@@ -1196,6 +1260,10 @@ rd.get("c")
 
 # delete key
 rd.delete("c")
+
+
+# CTRL + D
+# CTRL + D  로 터미널을 빠져나온다.
 ```
 
 
@@ -1222,8 +1290,8 @@ redis client를 cluster 외부에서 실행후 접근하는 방법을 알아보�
 $ kubectl -n redis-system get svc
 NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 my-release-redis-headless   ClusterIP   None            <none>        6379/TCP         14m
-my-release-redis-replicas   NodePort    10.43.232.115   <none>        6379:32310/TCP   14m
-my-release-redis-master     NodePort    10.43.160.148   <none>        6379:32300/TCP   14m
+my-release-redis-replicas   NodePort    10.43.130.132   <none>        6379:32310/TCP   14m
+my-release-redis-master     NodePort    10.43.104.60    <none>        6379:32300/TCP   14m
 
 
 ```
@@ -1243,16 +1311,16 @@ my-release-redis-master     NodePort    10.43.160.148   <none>        6379:32300
 
 - Bastion Server IP 는 개인별로 부여된 IP 이므로 이를 사용하자.
 
-  ※ Typora 를 사용하고 있다면 본문서에 등장하는 35.xx.xx.xx 를 모두 자신의 IP 로 Replace 사용하자.
+  ※ Typora 를 사용하고 있다면 본문서에 등장하는 34.130.165.53 를 모두 자신의 IP 로 Replace 사용하자.
 
 ```
 Ctrl + H
 
-35.xx.xx.xx --> 34.95.147.185 (자신의 Bastion Server IP)   모두 변경
+34.130.165.53 -->  (자신의 Bastion Server IP)   모두 변경
 ```
 
 - 접근 주소
-  - 35.xx.xx.xx:32300
+  - 34.130.165.53:32300
   - 위 주소로 본인의 local PC 에서도 위 Redis 주소로 접근할 수 있다.
 
   
@@ -1265,13 +1333,13 @@ bastion Server 에서 Kubernetes redis access 테스트를 위해 Container redi
 
 ```sh
 ## redis-client 용도로 docker client 를 실행한다.
-$ podman run --name redis-client -d --user root docker.io/bitnami/redis-cluster:6.2.7-debian-11-r3 sleep 365d
+$ docker run --name redis-client -d --user root docker.io/redis:7.2 sleep 365d
 
 ## docker 내에 진입후
-$ podman exec -it redis-client bash
+$ docker exec -it redis-client bash
 
 ## Local PC IP로 cluster mode 접근
-$ redis-cli -h 35.xx.xx.xx -c -a new1234 -p 32300
+$ redis-cli -h 34.130.165.53 -c -a new1234 -p 32300
 
 ```
 
@@ -1283,22 +1351,22 @@ $ redis-cli -h 35.xx.xx.xx -c -a new1234 -p 32300
 
 # get 명령 수행
 # Internal Access 에서 테스트 했던 4개 값을 읽어오자.
-35.xx.xx.xx:32300> get a
+34.130.165.53:32300> get a
 "1"
-35.xx.xx.xx:32300> get b
+34.130.165.53:32300> get b
 "2"
-35.xx.xx.xx:32300> get c
+34.130.165.53:32300> get c
 "3"
-35.xx.xx.xx:32300> get d
+34.130.165.53:32300> get d
 "4"
 
 
 # set 명령 수행
-35.xx.xx.xx:32300> set e 1
+34.130.165.53:32300> set e 1
 OK
-35.xx.xx.xx:32300> set f 2
+34.130.165.53:32300> set f 2
 OK
-35.xx.xx.xx:32300> set g 3
+34.130.165.53:32300> set g 3
 OK
 
 
@@ -1330,23 +1398,23 @@ bastion Server 에서 Kubernetes redis access 테스트를 위해 Container redi
 
 ```sh
 ## redis-client 용도로 docker client 를 실행한다.
-$ podman run --name redis-client -d --rm --user root docker.io/bitnami/redis-cluster:6.2.7-debian-11-r3 sleep 365d
+$ docker run --name redis-client -d --rm --user root docker.io/redis:7.2 sleep 365d
 
 
 ## Container 확인
-$ podman ps -a
+$ docker ps -a
 
 
 ## Container 내에 진입후
-$ podman exec -it redis-client bash
+$ docker exec -it redis-client bash
 
 root@453e3debccb3:/#
 
 
 
 ## Local PC IP로 cluster mode 접근
-$ redis-cli -h 35.xx.xx.xx -c -a new1234 -p 32300
-35.xx.xx.xx:32300>
+$ redis-cli -h 34.130.165.53 -c -a new1234 -p 32300
+34.130.165.53:32300>
 
 ```
 
@@ -1359,18 +1427,18 @@ $ redis-cli -h 35.xx.xx.xx -c -a new1234 -p 32300
 ```sh
 
 # 1) 계정 목록
-35.xx.xx.xx:32300> acl list
+34.130.165.53:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 
 ## 기본적으로 default 라는 계정이 존재한다.
 
 
 # 2) 계정 추가
-35.xx.xx.xx:32300> acl setuser supersong on >new1234 allcommands allkeys
+34.130.165.53:32300> acl setuser supersong on >new1234 allcommands allkeys
 OK
-35.xx.xx.xx:32300> acl setuser tempsong on >new1234 allcommands allkeys
+34.130.165.53:32300> acl setuser tempsong on >new1234 allcommands allkeys
 OK
-35.xx.xx.xx:32300>  acl list
+34.130.165.53:32300>  acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
 3) "user tempsong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
@@ -1378,23 +1446,23 @@ OK
 
 
 # 3) 계정 전환
-35.xx.xx.xx:32300> acl whoami
+34.130.165.53:32300> acl whoami
 "default"
-35.xx.xx.xx:32300> auth supersong new1234
+34.130.165.53:32300> auth supersong new1234
 OK
-35.xx.xx.xx:32300> acl whoami
+34.130.165.53:32300> acl whoami
 "supersong"
-35.xx.xx.xx:32300> auth default new1234
+34.130.165.53:32300> auth default new1234
 OK
-35.xx.xx.xx:32300> acl whoami
+34.130.165.53:32300> acl whoami
 "default"
 
 
 
 # 4) 계정 삭제
-35.xx.xx.xx:32300> acl deluser tempsong
+34.130.165.53:32300> acl deluser tempsong
 (integer) 1
-35.xx.xx.xx:32300> acl list
+34.130.165.53:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
 
@@ -1411,9 +1479,9 @@ OK
 ```sh
 
 # 1) 읽기 계정 생성
-35.xx.xx.xx:32300> acl setuser readonlysong on >new1234 allcommands allkeys -set +get
+34.130.165.53:32300> acl setuser readonlysong on >new1234 allcommands allkeys -set +get
 OK
-35.xx.xx.xx:32300> acl list
+34.130.165.53:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all -set"
 3) "user supersong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
@@ -1422,29 +1490,29 @@ OK
 
 
 # 2) 계정 전환
-35.xx.xx.xx:32300> acl whoami
+34.130.165.53:32300> acl whoami
 "default"
-35.xx.xx.xx:32300> auth readonlysong new1234
+34.130.165.53:32300> auth readonlysong new1234
 OK
 
-35.xx.xx.xx:32300> acl whoami
+34.130.165.53:32300> acl whoami
 "readonlysong"
 
 
 
 # 3) 읽기 / 쓰기 확인
-35.xx.xx.xx:32300> get a
+34.130.165.53:32300> get a
 "1"
 
-35.xx.xx.xx:32300> set a 1
+34.130.165.53:32300> set a 1
 (error) NOPERM this user has no permissions to run the 'set' command
 
 
 
 # 4) 계정 전환
-35.xx.xx.xx:32300> auth default new1234
+34.130.165.53:32300> auth default new1234
 OK
-35.xx.xx.xx:32300> acl whoami
+34.130.165.53:32300> acl whoami
 "default"
 
 
@@ -1462,10 +1530,10 @@ OK
 
 # 1) song 으로 시작하는 key 만 접근가능한 User 새성
 ## 1-1) song 계정 생성
-35.xx.xx.xx:32300> acl setuser song on >new1234 allcommands allkeys
+34.130.165.53:32300> acl setuser song on >new1234 allcommands allkeys
 OK
 
-35.xx.xx.xx:32300> acl list
+34.130.165.53:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all -set"
 3) "user song on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all"
@@ -1474,10 +1542,10 @@ OK
 
 
 ## 1-2) song 으로 시작하는 key 만 접근가능도록 설정
-35.xx.xx.xx:32300> acl setuser song resetkeys ~song*
+34.130.165.53:32300> acl setuser song resetkeys ~song*
 OK
 
-35.xx.xx.xx:32300> acl list
+34.130.165.53:32300> acl list
 1) "user default on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* &* +@all"
 2) "user readonlysong on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~* resetchannels +@all -set"
 3) "user song on #65fd3b5c243ea857f91daef8e3d5c203fa045f33e034861998b9d74cc42ceb24 ~song* resetchannels +@all"
@@ -1486,27 +1554,27 @@ OK
 
 
 # 2) 계정전환
-35.xx.xx.xx:32300> auth song new1234
+34.130.165.53:32300> auth song new1234
 OK
 
-35.xx.xx.xx:32300> acl whoami
+34.130.165.53:32300> acl whoami
 "song"
 
 
 
 # 3) set 명령 테스트
-35.xx.xx.xx:32300> set a 1
+34.130.165.53:32300> set a 1
 (error) NOPERM this user has no permissions to access one of the keys used as arguments
 
-35.xx.xx.xx:32300> set song_a 1
+34.130.165.53:32300> set song_a 1
 OK
 
 
 # 4) get 명령 테스트
-35.xx.xx.xx:32300> get a
+34.130.165.53:32300> get a
 (error) NOPERM this user has no permissions to access one of the keys used as arguments
 
-35.xx.xx.xx:32300> get song_a
+34.130.165.53:32300> get song_a
 "1"
 
 
@@ -1549,8 +1617,8 @@ $ kubectl delete namespace redis-system
 
 
 # 5) Container 삭제
-$ podman rm -f redis-client
-$ podman ps -a
+$ docker rm -f redis-client
+$ docker ps -a
 
 ```
 
@@ -1564,7 +1632,7 @@ $ podman ps -a
 
 
 
-# 4. [공용서버] Redis Server 접근
+# 4. [EduCluster] Redis Server 접근
 
 아래부터는 실습은 공용서버에서 수행한다.
 
@@ -1579,6 +1647,8 @@ $ podman ps -a
 ### (1) P3X
 
 * 링크 : http://p3x.redis-system.35.209.207.26.nip.io/
+* Redis DB 관리를 위한  편리한 데이터베이스 GUI app이며  WEB  UI 와 Desktop App 에서 작동한다.
+
 
 ![image-20220626181624749](assets/image-20220626181624749.png)
 
@@ -1596,7 +1666,7 @@ $ podman ps -a
 
 
 
-## 4.2 공용서버 Redis Access
+## 4.2 EduCluster Redis Access
 
 ### (1) 접속정보 확인
 
@@ -1605,9 +1675,12 @@ $ podman ps -a
 ```sh
 # Bastion Server 에서...
 
+# master node
 $ nc -zv 35.209.207.26 32300
 Connection to 35.209.207.26 32300 port [tcp/*] succeeded!
 
+
+# slave node
 $ nc -zv 35.209.207.26 32310
 Connection to 35.209.207.26 32310 port [tcp/*] succeeded!
 
@@ -1623,10 +1696,10 @@ Connection to 35.209.207.26 32310 port [tcp/*] succeeded!
 # Bastion Server 에서...
 
 ## redis-client 용도로 docker client 를 실행한다.
-$ podman run --name redis-client -d --user root docker.io/bitnami/redis-cluster:7.0.11-debian-11-r3 sleep 365d
+$ docker run --name redis-client -d --user root docker.io/redis:7.2 sleep 365d
 
 ## Container 내에 진입후
-$ podman exec -it redis-client bash
+$ docker exec -it redis-client bash
 
 ## Local PC IP로 cluster mode 접근
 $ redis-cli -h 35.209.207.26 -a new1234 -p 32300
@@ -1671,10 +1744,10 @@ OK
 # Bastion Server 에서...
 
 # 1) redis-client 삭제
-$ podman rm -f redis-client
+$ docker rm -f redis-client
 
 # 확인
-$ podman ps -a
+$ docker ps -a
 
 ```
 
@@ -1842,18 +1915,7 @@ Redis Web UI tool 로 모니터 하면서 아래 CRUD 테스트를진행해 보�
 
 
 
-
-
-### (2) health Check
-
-
-```sh
-$ curl -X GET http://localhost:8082/health
-OK
-```
-
-
-### (3) set
+### (2) set
 
 
 ```sh
@@ -1863,7 +1925,7 @@ $ curl -X POST http://localhost:8082/person \
           "id": "1001",
           "name": "Song",
           "age": 20,
-          "createdAt": "2023-06-11T20:03:00"
+          "createdAt": "2023-09-03T14:00:00"
         }'
 
 $ curl -X POST http://localhost:8082/person \
@@ -1872,30 +1934,28 @@ $ curl -X POST http://localhost:8082/person \
           "id": "1002",
           "name": "Park",
           "age": 25,
-          "createdAt": "2023-06-11T20:03:00"
+          "createdAt": "2023-09-03T14:00:00"
         }'
 
 ```
 
-### (4) get
+### (3) get
 
 ```sh
 $ curl localhost:8082/person/1001
-{"id":"1001","name":"Song","age":20,"createdAt":"2023-06-06T11:03:00"}
+{"id":"1001","name":"Song","age":20,"createdAt":"2023-09-03T14:00:00"}  
 
 $ curl localhost:8082/person/1002
-{"id":"1002","name":"Park","age":20,"createdAt":"2023-06-06T11:03:00"}
-
+{"id":"1002","name":"Park","age":25,"createdAt":"2023-09-03T14:00:00"}
 ```
 
 
-### (5) delete
+### (4) delete
 
 ```sh
 $ curl -X DELETE localhost:8082/person/1001
 
 $ curl -X DELETE localhost:8082/person/1002
-
 ```
 
 

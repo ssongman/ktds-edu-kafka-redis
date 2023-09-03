@@ -48,9 +48,22 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 
 ## 1.3 Typora 설치
 
+교육자료는 MarkDown 문서로 되어 있으며 MD 파일을 확인하기 위해서  typora를 설치 한다.
+
+
+
 ### (1) 설치
 
-- 링크 : https://download.typora.io/windows/typora-setup-x64.exe
+- download 위치
+  - 다운로드주소 : https://download.typora.io/windows/typora-setup-x64.exe
+
+
+- [참고] 링크: https://typora.io/
+
+
+- Typora 실행
+
+
 
 
 
@@ -133,19 +146,42 @@ $ cd /c/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-kafka-redis.git
 Cloning into 'ktds-edu-kafka-redis'...
-remote: Enumerating objects: 416, done.
-remote: Counting objects: 100% (416/416), done.
-remote: Compressing objects: 100% (276/276), done.
-remote: Total 416 (delta 153), reused 347 (delta 88), pack-reused 0
-Receiving objects: 100% (416/416), 8.63 MiB | 9.46 MiB/s, done.
-Resolving deltas: 100% (153/153), done.
-
+remote: Enumerating objects: 590, done.
+remote: Counting objects: 100% (41/41), done.
+remote: Compressing objects: 100% (26/26), done.
+remote: Total 590 (delta 17), reused 28 (delta 13), pack-reused 549
+Receiving objects: 100% (590/590), 8.70 MiB | 9.77 MiB/s, done.
+Resolving deltas: 100% (259/259), done.
 
 
 $ ll /c/githubrepo
 drwxr-xr-x 1 ssong 197609 0 Jun 11 14:27 ktds-edu-kafka-redis/
 
 ```
+
+
+
+만약 교육중 (오타 변경 등의 사유로) 자료가 변경되어 다시 받아야 하는 경우 가 있을 경우 해당 위치에서 git pull 만 다시 받도록 하자.
+
+```sh
+$ cd /c/githubrepo/ktds-edu-kafka-redis
+
+$ git pull
+
+
+# 만약 Download 받은자료를 수정되어서 pull 이 안되는 경우는 
+# stash 후 pull 받자.
+# stash 는 내가 수행한 작업을 commit 하기전 임시로 저장해 놓는 명령이다.
+
+$ git stash
+
+$ git pull
+
+```
+
+
+
+
 
 
 
@@ -171,32 +207,35 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 
 
 
-## 3.1 수강생별 접속 서버 주소
+## 3.1 개인 VM 서버 주소 확인- ★
 
 개인별 VM Server 접속 환경 및 Kafka 실습을 위한 개인 Topic 정보를 확인하자.
 
-| 담당자 | VM Server | VM  Server IP | kafka  Topic | kafka Group | 비고 |
-| :----: | :-------: | :-----------: | :----------: | :---------: | :--: |
-| 송양xx | bastion01 |  34.xx.xx.xx  | edu-topic01  | edu-group01 |      |
-|        | bastion02 |               | edu-topic02  | edu-group02 |      |
-|        | bastion03 |               | edu-topic03  | edu-group03 |      |
-|        | bastion04 |               | edu-topic04  | edu-group04 |      |
-|        | bastion05 |               | edu-topic05  | edu-group05 |      |
-|        | bastion06 |               | edu-topic06  | edu-group06 |      |
-|        | bastion07 |               | edu-topic07  | edu-group07 |      |
-|        | bastion08 |               | edu-topic08  | edu-group08 |      |
-|        | bastion09 |               | edu-topic09  | edu-group09 |      |
-|        | bastion10 |               | edu-topic10  | edu-group10 |      |
-|        | bastion11 |               | edu-topic11  | edu-group11 |      |
-|        | bastion12 |               | edu-topic12  | edu-group12 |      |
-|        | bastion13 |               | edu-topic13  | edu-group13 |      |
-|        | bastion14 |               | edu-topic14  | edu-group14 |      |
-|        | bastion15 |               | edu-topic15  | edu-group15 |      |
-|        | bastion16 |               | edu-topic16  | edu-group16 |      |
-|        | bastion17 |               | edu-topic17  | edu-group17 |      |
-|        | bastion18 |               | edu-topic18  | edu-group18 |      |
-|        | bastion19 |               | edu-topic19  | edu-group19 |      |
-|        | bastion20 |               | edu-topic20  | edu-group20 |      |
+| 담당자 |        소속        | VM  Server | VM  Server IP  | kafka  Topic | kafka  Group | 비고 |
+| :----: | :----------------: | :--------: | :------------: | :----------: | :----------: | :--: |
+| 송양종 | ICIS Tr 아키텍처팀 | bastion01  |  34.xx.xx.xx   | edu-topic01  | edu-group01  |      |
+| 송양종 | ICIS Tr 아키텍처팀 | bastion02  | 34.130.165.53  | edu-topic02  | edu-group02  |      |
+| 이도겸 | ICIS Tr 아키텍처팀 | bastion03  |  34.82.54.143  | edu-topic03  | edu-group03  |      |
+| 김수진 | ICIS Tr 아키텍처팀 | bastion04  | 34.95.138.114  | edu-topic04  | edu-group04  |      |
+| 권성광 |      SI개발팀      | bastion05  |  34.81.13.40   | edu-topic05  | edu-group05  |      |
+| 김상재 |   고객DX솔루션팀   | bastion06  | 35.201.196.134 | edu-topic06  | edu-group06  |      |
+| 김완수 |   Safety플랫폼팀   | bastion07  | 35.185.173.133 | edu-topic07  | edu-group07  |      |
+| 김주연 |     AI서비스팀     | bastion08  |  34.80.24.21   | edu-topic08  | edu-group08  |      |
+| 김채리 |   고객DX솔루션팀   | bastion09  | 34.80.110.245  | edu-topic09  | edu-group09  |      |
+| 박기태 |  오픈소스인프라팀  | bastion10  | 35.244.17.182  | edu-topic10  | edu-group10  |      |
+| 박상우 |   Safety플랫폼팀   | bastion11  | 34.100.139.156 | edu-topic11  | edu-group11  |      |
+| 서현직 |   인프라DX개발팀   | bastion12  | 34.100.140.222 | edu-topic12  | edu-group12  |      |
+| 손홍일 |    SmartX사업팀    | bastion13  | 34.100.197.245 | edu-topic13  | edu-group13  |      |
+| 송관동 |     DWP개발팀      | bastion14  | 35.200.204.96  | edu-topic14  | edu-group14  |      |
+| 이민재 |    CRM서비스팀     | bastion15  |  34.64.61.89   | edu-topic15  | edu-group15  |      |
+| 이은영 |     OSS개발1팀     | bastion16  | 34.64.110.168  | edu-topic16  | edu-group16  |      |
+| 이효리 |   Rater서비스팀    | bastion17  |  34.22.78.111  | edu-topic17  | edu-group17  |      |
+| 임소연 |   ICIS Tr 빌링팀   | bastion18  |  34.64.162.88  | edu-topic18  | edu-group18  |      |
+| 장시영 |   ICIS Tr 고객팀   | bastion19  | 34.97.253.126  | edu-topic19  | edu-group19  |      |
+| 정유진 |   Rater서비스팀    | bastion20  |  34.64.34.124  | edu-topic20  | edu-group20  |      |
+| 하창현 |   ICIS Tr 고객팀   | bastion21  |  34.97.131.75  | edu-topic21  | edu-group21  |      |
+
+
 
 
 
@@ -235,17 +274,31 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 sesion 을 생성하
 
 
 
-## 3.3 실습자료 download
+## 3.3 VM 서버에서 실습자료 download
 
-접속 완료 하였다면 테스트를 위해서 git clone 명령으로 실습 자료를 받아 놓자.
+실습 테스트를 위해서 실습 자료를 받아 놓자.
+
+이미 각자 VM에 해당 교육자료가  git clone 되어 있으므로 git pull 로 최신 데이터로 update 만 진행하자
 
 ```sh
 
-## githubrepo directory 생성
-$ mkdir -p ~/githubrepo
+# 최신 데이터를 한번 더 받는다.
+
+$ cd ~/githubrepo/ktds-edu-kafka-redis
+$ git pull
+
+
+
+
+
+# 만약 pull일 잘 안되는 경우는 모두 삭제후 다시 git clone 받자.
+
+# 삭제
+$ rm -rf ~/githubrepo/ktds-edu-kafka-redis/
 
 $ cd ~/githubrepo
 
+## git clone 수행
 $ git clone https://github.com/ssongman/ktds-edu-kafka-redis.git
 Cloning into 'ktds-edu-kafka-redis'...
 remote: Enumerating objects: 320, done.
@@ -256,27 +309,20 @@ Receiving objects: 100% (320/320), 8.40 MiB | 24.22 MiB/s, done.
 Resolving deltas: 100% (95/95), done.
 
 
-## 만약 ktds-edu-kafka-redis 존재한다면 최신 데이터를 한번 더 받는다.
-$ cd ~/githubrepo/ktds-edu-kafka-redis.git
-$ git pull
-
-
 # 확인
 $ cd  ~/githubrepo/ktds-edu-kafka-redis
 
 $ ll ~/githubrepo/ktds-edu-kafka-redis
-total 44
-drwxrwxr-x 8 ktdseduuser ktdseduuser 4096 Jun 11 05:53 ./
-drwxrwxr-x 3 ktdseduuser ktdseduuser 4096 Jun 11 05:53 ../
-drwxrwxr-x 8 ktdseduuser ktdseduuser 4096 Jun 11 05:53 .git/
--rw-rw-r-- 1 ktdseduuser ktdseduuser  382 Jun 11 05:53 .gitignore
--rw-rw-r-- 1 ktdseduuser ktdseduuser 4077 Jun 11 05:53 README.md
--rw-rw-r-- 1 ktdseduuser ktdseduuser  461 Jun 11 05:53 SUMMARY.md
-drwxrwxr-x 3 ktdseduuser ktdseduuser 4096 Jun 11 05:53 beforebegin/
-drwxrwxr-x 2 ktdseduuser ktdseduuser 4096 Jun 11 05:53 gcp-vm-key/
-drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 Jun 11 05:53 kafka/
-drwxrwxr-x 3 ktdseduuser ktdseduuser 4096 Jun 11 05:53 ktcloud-setup/
-drwxrwxr-x 6 ktdseduuser ktdseduuser 4096 Jun 11 05:53 redis/
+drwxrwxr-x 8 ktdseduuser ktdseduuser 4096 Sep  3 12:27 .git/
+-rw-rw-r-- 1 ktdseduuser ktdseduuser  382 Sep  2 13:45 .gitignore
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 4006 Sep  2 13:45 README.md
+-rw-rw-r-- 1 ktdseduuser ktdseduuser  461 Sep  2 13:45 SUMMARY.md
+drwxrwxr-x 4 ktdseduuser ktdseduuser 4096 Sep  3 12:27 beforebegin/
+drwxrwxr-x 4 ktdseduuser ktdseduuser 4096 Sep  2 13:45 cloud-setup/
+drwxrwxr-x 2 ktdseduuser ktdseduuser 4096 Sep  2 13:51 gcp-vm-key/
+drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 Sep  3 12:27 kafka/
+drwxrwxr-x 8 ktdseduuser ktdseduuser 4096 Sep  2 13:45 redis/
+
 
 ```
 

@@ -82,10 +82,9 @@
 
 ### 6) Strimzi Clean up
 
-### 7) Java - Spring Cloud Stream
+### 7) Java - Spring Boot
 
 * 개인별로 할당된 Topic 확인
-* 개인별 Spring Cloud Stream 특정
 * kafka-consumer 실습
 * kafka-producer 실습
 
@@ -129,30 +128,32 @@
 
 ### 3) Redis Install
 
-* helm chart download / RedisInstall
+* helm chart download / Redis Install
 
 ### 4) Accessing Redis
 
 * Internal Access : Redis client, set/get 확인
 * External Access : Node IP 확인, Redis client 확인(Docker), set/get 확인
 
-### 5) P3X Redis UI
-
-* redis-ui deploy
-
-### 6) ACL
+### 5) ACL
 
 * ACL 기본명령
 * 읽기전용 계정 생성
 * 특정 key만 접근 허용 권한
+
+### 6) EduCluster Redis Server
+
+* 모니터링 tool
+  * P3X
+  * RedisInsight
+
+* EduCluster Redis Access
 
 ### 7) Java Sample
 
 * Jedis vs Lettuce
 * redis-sample 소스 확인 및 수행
 * CRUD 테스트
-
-### 8) Redis Clean up
 
 
 
@@ -162,7 +163,7 @@
 
 ### 1) Bastion Server Setup
 
-* k3s 구성
+* kubernetes Install (k3s)
 * Helm Install
 * 기타 Tool Setup
 
@@ -176,5 +177,4 @@
 ### 3) Redis on Cloud
 
 * Redis Cluster Install
-* P3X Redis UI
 * Web UI (P3X / RedisInsight)

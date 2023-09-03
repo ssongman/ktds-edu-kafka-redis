@@ -17,7 +17,7 @@ public class PubController {
 		this.producer = producer;
 	}
 	
-	@PostMapping("/publish")
+	@GetMapping("/publish")
 	public void messageToTopic(@RequestParam("message") String message) {
 		producer.sendMeessage(message);
 	}
