@@ -605,7 +605,7 @@ metadata:
   namespace: kafka
 spec:
   kafka:
-    version: 3.4.0
+    version: 3.5.1
     replicas: 3
     authorization:
       type: simple
@@ -625,8 +625,8 @@ spec:
       transaction.state.log.replication.factor: 3
       transaction.state.log.min.isr: 2
       default.replication.factor: 3
-      min.insync.replicas: 2
-      inter.broker.protocol.version: "3.4"
+      min.insync.replicas: 1
+      inter.broker.protocol.version: "3.5"
     storage:
       type: ephemeral
   zookeeper:
@@ -704,7 +704,7 @@ metadata:
   namespace: kafka
 spec:
   kafka:
-    version: 3.4.0
+    version: 3.5.1
     replicas: 3
     listeners:
       - name: plain
@@ -720,8 +720,8 @@ spec:
       transaction.state.log.replication.factor: 3
       transaction.state.log.min.isr: 2
       default.replication.factor: 3
-      min.insync.replicas: 2
-      inter.broker.protocol.version: "3.4"
+      min.insync.replicas: 1
+      inter.broker.protocol.version: "3.5"
     storage:
       type: ephemeral
   zookeeper:
