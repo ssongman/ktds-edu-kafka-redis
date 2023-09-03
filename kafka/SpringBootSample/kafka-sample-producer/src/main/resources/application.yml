@@ -8,7 +8,7 @@ spring:
     
   kafka:
     producer:
-      acks: 0
+      acks: 1
     bootstrap-servers: my-cluster.kafka.35.209.207.26.nip.io:32100
     security:
       protocol: SASL_PLAINTEXT
