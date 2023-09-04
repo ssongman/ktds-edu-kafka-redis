@@ -222,7 +222,7 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 | 김완수 |   Safety플랫폼팀   | bastion07  | 35.185.173.133 | edu-topic07  | edu-group07  |      |
 | 김주연 |     AI서비스팀     | bastion08  |  34.80.24.21   | edu-topic08  | edu-group08  |      |
 | 김채리 |   고객DX솔루션팀   | bastion09  | 34.80.110.245  | edu-topic09  | edu-group09  |      |
-| 박기태 |  오픈소스인프라팀  | bastion10  | 35.244.17.182  | edu-topic10  | edu-group10  |      |
+| 우경덕 |  Digico사업수행팀  | bastion10  | 35.244.17.182  | edu-topic10  | edu-group10  |      |
 | 박상우 |   Safety플랫폼팀   | bastion11  | 34.100.139.156 | edu-topic11  | edu-group11  |      |
 | 서현직 |   인프라DX개발팀   | bastion12  | 34.100.140.222 | edu-topic12  | edu-group12  |      |
 | 손홍일 |    SmartX사업팀    | bastion13  | 34.100.197.245 | edu-topic13  | edu-group13  |      |
