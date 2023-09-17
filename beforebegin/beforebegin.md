@@ -211,29 +211,29 @@ C:\githubrepo\ktds-edu-kafka-redis\README.md
 
 개인별 VM Server 접속 환경 및 Kafka 실습을 위한 개인 Topic 정보를 확인하자.
 
-| 담당자 |        소속        | VM  Server | VM  Server IP  | kafka  Topic | kafka  Group | 비고 |
-| :----: | :----------------: | :--------: | :------------: | :----------: | :----------: | :--: |
-| 송양종 | ICIS Tr 아키텍처팀 | bastion01  |  34.xx.xx.xx   | edu-topic01  | edu-group01  |      |
-| 송양종 | ICIS Tr 아키텍처팀 | bastion02  | 34.130.165.53  | edu-topic02  | edu-group02  |      |
-| 이도겸 | ICIS Tr 아키텍처팀 | bastion03  |  34.82.54.143  | edu-topic03  | edu-group03  |      |
-| 김수진 | ICIS Tr 아키텍처팀 | bastion04  | 34.95.138.114  | edu-topic04  | edu-group04  |      |
-| 권성광 |      SI개발팀      | bastion05  |  34.81.13.40   | edu-topic05  | edu-group05  |      |
-| 김상재 |   고객DX솔루션팀   | bastion06  | 35.201.196.134 | edu-topic06  | edu-group06  |      |
-| 김완수 |   Safety플랫폼팀   | bastion07  | 35.185.173.133 | edu-topic07  | edu-group07  |      |
-| 김주연 |     AI서비스팀     | bastion08  |  34.80.24.21   | edu-topic08  | edu-group08  |      |
-| 김채리 |   고객DX솔루션팀   | bastion09  | 34.80.110.245  | edu-topic09  | edu-group09  |      |
-| 우경덕 |  Digico사업수행팀  | bastion10  | 35.244.17.182  | edu-topic10  | edu-group10  |      |
-| 박상우 |   Safety플랫폼팀   | bastion11  | 34.100.139.156 | edu-topic11  | edu-group11  |      |
-| 서현직 |   인프라DX개발팀   | bastion12  | 34.100.140.222 | edu-topic12  | edu-group12  |      |
-| 손홍일 |    SmartX사업팀    | bastion13  | 34.100.197.245 | edu-topic13  | edu-group13  |      |
-| 송관동 |     DWP개발팀      | bastion14  | 35.200.204.96  | edu-topic14  | edu-group14  |      |
-| 이민재 |    CRM서비스팀     | bastion15  |  34.64.61.89   | edu-topic15  | edu-group15  |      |
-| 이은영 |     OSS개발1팀     | bastion16  | 34.64.110.168  | edu-topic16  | edu-group16  |      |
-| 이효리 |   Rater서비스팀    | bastion17  |  34.22.78.111  | edu-topic17  | edu-group17  |      |
-| 임소연 |   ICIS Tr 빌링팀   | bastion18  |  34.64.162.88  | edu-topic18  | edu-group18  |      |
-| 장시영 |   ICIS Tr 고객팀   | bastion19  | 34.97.253.126  | edu-topic19  | edu-group19  |      |
-| 정유진 |   Rater서비스팀    | bastion20  |  34.64.34.124  | edu-topic20  | edu-group20  |      |
-| 하창현 |   ICIS Tr 고객팀   | bastion21  |  34.97.131.75  | edu-topic21  | edu-group21  |      |
+| 담당자 |        소속        | VM  Server | VM  Server IP | kafka  Topic | kafka  Group | 비고 |
+| :----: | :----------------: | :--------: | :-----------: | :----------: | :----------: | :--: |
+| 송양*  | ICIS Tr 아키텍처팀 | bastion01  |  34.xx.xx.xx  | edu-topic01  | edu-group01  |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
+|        |                    |            |               |              |              |      |
 
 
 
