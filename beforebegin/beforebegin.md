@@ -250,7 +250,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 sesion 을 생성하
 
   - SSH : 팝업창 상단 아이콘 클릭
 
-![image-20230514022214007](assets/image-20230514022214007.png)
+![image-20230514022214007](beforebegin.assets/image-20230514022214007.png)
 
 빨간색 영역을 주의해서 입력한 후 접속하자.
 
